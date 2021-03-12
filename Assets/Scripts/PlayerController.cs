@@ -264,12 +264,12 @@ namespace Sjouke
 
             Mathf.Clamp(_currentAcceleration, 0, 1);
 
-            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y) * deltaTime);
+            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
 
             if (ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
 
-            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()));
+            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()) * deltaTime);
 
             _currentMovementVector = newMovementVector;
         }
