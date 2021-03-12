@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Sjouke
 {
-    public class InputRotator : MonoBehaviour
+    public class HUDRotator : MonoBehaviour
     {
         public InputHandler InputHandler;
         public PlayerController PlayerController;
@@ -25,13 +25,13 @@ namespace Sjouke
         private void Start()
         {
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, InputRotator>(InputHandler, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDRotator>(InputHandler, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled += context => OnLookInput(false, Vector2.zero);
 
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, InputRotator>(PlayerController, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDRotator>(PlayerController, this, gameObject);
 #endif
             PlayerController.onPlayerJump += OnPlayerJump;
             PlayerController.onPlayerLock += OnPlayerLock;
