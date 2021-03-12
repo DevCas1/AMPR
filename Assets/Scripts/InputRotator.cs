@@ -20,7 +20,7 @@ namespace Sjouke
         private Vector2 _lookInput;
         private Vector3 _oldLookInput;
         private float _currentAcceleration;
-        // private bool _jumpInput;
+        private bool _playerLock;
 
         private void Start()
         {
@@ -34,13 +34,18 @@ namespace Sjouke
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, InputRotator>(PlayerController, this, gameObject);
 #endif
             PlayerController.onPlayerJump += OnPlayerJump;
+            PlayerController.onPlayerLock += OnPlayerLock;
         }
 
         private void Update()
         {
-            bool verticalLook = Mathf.Abs(_lookInput.y) > Mathf.Abs(_lookInput.x);
+            bool verticalLook = !_playerLock && (Mathf.Abs(_lookInput.y) > Mathf.Abs(_lookInput.x));
 
-            Vector3 displacement = Vector3.Lerp(_oldLookInput, new Vector3(-_lookInput.y, verticalLook ? 0 : _lookInput.x, 0), Mathf.SmoothStep(0, 1, _currentAcceleration));
+            Vector3 displacement = Vector3.Lerp(_oldLookInput, 
+                                                _playerLock ? Vector3.zero : new Vector3(-_lookInput.y, 
+                                                                                         verticalLook ? 0 : _lookInput.x, 
+                                                                                         0), 
+                                                Mathf.SmoothStep(0, 1, _currentAcceleration));
 
             if (Mathf.Abs(displacement.x) > MaxLookEffect.x)
                 displacement.x = displacement.x > 0 ? MaxLookEffect.x : -MaxLookEffect.x;
@@ -57,14 +62,8 @@ namespace Sjouke
                                                        Quaternion.Euler(displacement * LookEffectStrength),
                                                        Time.deltaTime * SmoothSpeed);
 
-            _oldLookInput = displacement;
-
-            // if (_jumpInput)
-            // {
-            //     _lookInput = Vector2.zero;
-            //     _activeInput = false;
-            // }
-            // _jumpInput = false;
+            if (!_playerLock)
+                _oldLookInput = displacement;
         }
 
         private void OnLookInput(bool active, Vector2 input)
@@ -81,11 +80,18 @@ namespace Sjouke
             transform.DOBlendableLocalRotateBy(new Vector3(-JumpEffectStrength, 0, 0), JumpEffectDuration);
         }
 
+        private void OnPlayerLock(bool state)
+        {
+            _playerLock = state;
+            _lookInput = state ? Vector2.zero : new Vector2(_oldLookInput.x, _oldLookInput.y);
+        }
+
         private void OnDestroy()
         {
             InputHandler.Controls.Player.Look.performed -= context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled -= context => OnLookInput(false, Vector2.zero);
             PlayerController.onPlayerJump -= OnPlayerJump;
+            PlayerController.onPlayerLock -= OnPlayerLock;
         }
     }
 }

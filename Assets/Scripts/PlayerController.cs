@@ -75,10 +75,10 @@ namespace Sjouke
         [Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
         public int AmountOfJumps;
 
-        // Declare the delegate (if using non-generic pattern).
-        public delegate void PlayerEvent();
-        // Declare the event.
-        public event PlayerEvent onPlayerJump;
+        public delegate void PlayerJumpEvent();
+        public delegate void PlayerLockEvent(bool state);
+        public event PlayerJumpEvent onPlayerJump;
+        public event PlayerLockEvent onPlayerLock;
 
         [Header("Advanced"), SerializeField]
         private ushort _rigidbodySolverIterations = 10;
@@ -359,10 +359,14 @@ namespace Sjouke
             }
             else
             {
-                Vector3 targetDir = (_lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition) - transform.position;
+                Vector3 targetPos = _lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition;
+                Vector3 targetDir = (targetPos - new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z)).normalized;
 
                 newRotation = targetDir.y;
                 newCameraRotation = targetDir.x;
+
+                // Debug.DrawLine(Vector3.zero, new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z).normalized, Color.magenta);
+                Debug.DrawRay(targetDir, -targetDir, Color.magenta);
             }
 
             if (newCameraRotation < 180 && newCameraRotation > MinCameraAngle)
@@ -398,6 +402,8 @@ namespace Sjouke
             _lockOnStatus = LockOnStatus.None;
             _lockOnPosition = Vector3.zero;
             _lockOnTransform = null;
+
+            onPlayerLock?.Invoke(false);
         }
 
         private void OnPlayerMove(bool activeInput, Vector2? input = null)
@@ -422,6 +428,8 @@ namespace Sjouke
             //TODO: Check for all lockable targets in view, and lock onto the one nearest to the screen's center.
 
             LookAt(Vector3.zero);
+
+            onPlayerLock?.Invoke(true);
         }
 
         public void RegisterTargetable(Targetable targetable)
