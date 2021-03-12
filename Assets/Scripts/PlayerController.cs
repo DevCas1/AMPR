@@ -75,6 +75,11 @@ namespace Sjouke
         [Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
         public int AmountOfJumps;
 
+        // Declare the delegate (if using non-generic pattern).
+        public delegate void PlayerEvent();
+        // Declare the event.
+        public event PlayerEvent onPlayerJump;
+
         [Header("Advanced"), SerializeField]
         private ushort _rigidbodySolverIterations = 10;
 
@@ -115,9 +120,13 @@ namespace Sjouke
         private void Reset()
         {
             _rb = GetComponent<Rigidbody>();
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
+#endif
             _collider = GetComponentInChildren<CapsuleCollider>();
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+#endif
         }
 
         private void Awake()
@@ -125,15 +134,20 @@ namespace Sjouke
             InitializeControls();
 
             _playerCamTransform = PlayerCamera.transform;
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-
+#endif
             _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+#endif
         }
 
         private void InitializeControls()
         {
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
+#endif
             PlayerControls controls = InputHandler.Controls;
 
             controls.Player.Move.performed += context => OnPlayerMove(true, context.ReadValue<Vector2>());
@@ -150,17 +164,23 @@ namespace Sjouke
             if (_rb == null)
                 _rb = GetComponent<Rigidbody>();
 
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
+#endif
 
             if (InputHandler == null)
                 InputHandler = FindObjectOfType<InputHandler>();
 
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
+#endif
 
             if (_collider == null)
                 _collider = GetComponentInChildren<CapsuleCollider>();
 
+#if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+#endif
 
             _nonAllocBuffer = new RaycastHit[10];
 
@@ -249,10 +269,7 @@ namespace Sjouke
             if (ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
 
-            // _rb.position += newVelocity;
-            // transform.position += newVelocity;
             _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()));
-
 
             _currentMovementVector = newMovementVector;
         }
@@ -323,6 +340,8 @@ namespace Sjouke
             // _currentAcceleration = 0;
 
             _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
+
+            onPlayerJump?.Invoke();
         }
 
         private void UpdateRotations()
@@ -347,10 +366,16 @@ namespace Sjouke
             }
 
             if (newCameraRotation < 180 && newCameraRotation > MinCameraAngle)
+            {
                 newCameraRotation = MinCameraAngle;
+                RemoveLockOn();
+            }
 
             if (newCameraRotation > 180 && newCameraRotation < MaxCameraAngle)
+            {
                 newCameraRotation = MaxCameraAngle;
+                RemoveLockOn();
+            }
 
             transform.rotation = Quaternion.Euler(0, newRotation, 0);
             _playerCamTransform.localRotation = Quaternion.Euler(newCameraRotation, 0, 0);
@@ -396,13 +421,26 @@ namespace Sjouke
         {
             //TODO: Check for all lockable targets in view, and lock onto the one nearest to the screen's center.
 
-            LookAt(new Vector3(0, 3, 0));
+            LookAt(Vector3.zero);
         }
 
         public void RegisterTargetable(Targetable targetable)
         {
             //TODO: Check if target isn't already registered.
             _availableTargets.Add(targetable);
+        }
+
+        private void OnDestroy()
+        {
+            PlayerControls controls = InputHandler.Controls;
+
+            controls.Player.Move.performed -= context => OnPlayerMove(true, context.ReadValue<Vector2>());
+            controls.Player.Move.canceled -= context => OnPlayerMove(false);
+            controls.Player.Look.performed -= context => OnPlayerLook(context.ReadValue<Vector2>());
+            controls.Player.Look.canceled -= context => OnPlayerLook(Vector2.zero);
+            controls.Player.Jump.performed -= context => OnPlayerJump();
+            controls.Player.Lock.performed -= context => OnPlayerLockOn();
+            controls.Player.Lock.canceled -= context => RemoveLockOn();
         }
     }
 }
