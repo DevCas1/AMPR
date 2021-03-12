@@ -287,15 +287,15 @@ namespace Sjouke
         private void CheckForGround()
         {
 #if UNITY_EDITOR
-            Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
+            // Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
 #endif
 
             // bool grounded = Physics.SphereCastNonAlloc(transform.position, JumpLandCheckRadius, Vector3.down, _nonAllocBuffer, JumpLandCheckDistance, JumpableLayers) > 0;
             int hits = Physics.SphereCastNonAlloc(transform.position,
-                                                  _collider.radius /** (1.0f - advancedSettings.shellOffset)*/,
+                                                  JumpLandCheckRadius,
                                                   Vector3.down,
                                                   _nonAllocBuffer,
-                                                  ((_collider.height / 2) - _collider.radius) + JumpLandCheckDistance,
+                                                  JumpLandCheckDistance,
                                                   JumpableLayers,
                                                   QueryTriggerInteraction.Ignore);
 
