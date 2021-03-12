@@ -249,10 +249,7 @@ namespace Sjouke
             if (ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
 
-            // _rb.position += newVelocity;
-            // transform.position += newVelocity;
             _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()));
-
 
             _currentMovementVector = newMovementVector;
         }
@@ -347,10 +344,16 @@ namespace Sjouke
             }
 
             if (newCameraRotation < 180 && newCameraRotation > MinCameraAngle)
+            {
                 newCameraRotation = MinCameraAngle;
+                RemoveLockOn();
+            }
 
             if (newCameraRotation > 180 && newCameraRotation < MaxCameraAngle)
+            {
                 newCameraRotation = MaxCameraAngle;
+                RemoveLockOn();
+            }
 
             transform.rotation = Quaternion.Euler(0, newRotation, 0);
             _playerCamTransform.localRotation = Quaternion.Euler(newCameraRotation, 0, 0);
@@ -396,7 +399,7 @@ namespace Sjouke
         {
             //TODO: Check for all lockable targets in view, and lock onto the one nearest to the screen's center.
 
-            LookAt(new Vector3(0, 3, 0));
+            LookAt(Vector3.zero);
         }
 
         public void RegisterTargetable(Targetable targetable)
