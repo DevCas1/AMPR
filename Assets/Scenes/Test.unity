@@ -1568,6 +1568,17 @@ Transform:
   m_Father: {fileID: 1816219194}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1223741342 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6944414915189387108, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
+  m_PrefabInstance: {fileID: 1887140550618375744}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2bfc25f58c02884687b5d75b0bffe17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1266434747
 GameObject:
   m_ObjectHideFlags: 0
@@ -2383,27 +2394,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1817510673 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9010969492904664329, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
-  m_PrefabInstance: {fileID: 1887140550618375744}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1817510677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1817510673}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a25b3d45469d8241ac8ecae3f252335, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InputHandler: {fileID: 1180260932}
-  EffectStrength: 1
-  MaxEffect: {x: 0.5, y: 2}
-  SmoothSpeed: 5
 --- !u!1 &2019111572
 GameObject:
   m_ObjectHideFlags: 0
@@ -2506,6 +2496,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1817510677, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
+      propertyPath: InputHandler
+      value: 
+      objectReference: {fileID: 1180260932}
+    - target: {fileID: 1817510677, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
+      propertyPath: PlayerController
+      value: 
+      objectReference: {fileID: 1223741342}
     - target: {fileID: 1887140552146481055, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
       propertyPath: m_Name
       value: Player
