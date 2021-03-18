@@ -13,7 +13,7 @@ public static class DebugUtility
 #endif
     }
 
-    public static void HandleErrorIfNullFindObject<TO, TS>(UnityEngine.Object obj, Component source)
+    public static void HandleErrorIfNullFindObject<TO, TS>(Object obj, Component source)
     {
 #if UNITY_EDITOR
         if (obj == null)

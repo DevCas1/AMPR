@@ -1,11 +1,16 @@
 using System;
-using UnityEngine;
+using DG.Tweening;
 using NaughtyAttributes;
+using UnityEngine;
 
 namespace Sjouke
 {
     public class UpdateManager : MonoBehaviour
     {
+        public delegate void UpdateCallback(float deltaTime);
+        public event UpdateCallback DynamicUpdate;
+        public event UpdateCallback PhysicsUpdate;
+
         public enum UpdateType { Update, FixedUpdate }
 
         public static UpdateManager Instance { get; private set; }
@@ -29,6 +34,8 @@ namespace Sjouke
 
             _useUpdate = !IsUsingFixedUpdate;
 
+
+            DOTween.Init(true, false);
             DontDestroyOnLoad(this);
         }
 
@@ -45,7 +52,17 @@ namespace Sjouke
             if (!_useUpdate)
                 return;
 
+            DynamicUpdate?.Invoke(Time.deltaTime);
+
             Physics.Simulate(Time.deltaTime);
+        }
+
+        private void FixedUpdate()
+        {
+            if (_useUpdate)
+                return;
+
+            PhysicsUpdate?.Invoke(Time.fixedDeltaTime);
         }
 
         public void SetUpdateLoop(bool useFixedUpdate)
