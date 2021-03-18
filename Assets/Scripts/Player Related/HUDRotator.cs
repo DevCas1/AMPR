@@ -9,6 +9,7 @@ namespace Sjouke
     {
         public InputHandler InputHandler;
         public PlayerController PlayerController;
+        public Transform PlayerCamTransform;
 
         public float LookEffectStrength = 1;
         public Vector2 MaxLookEffect = new Vector2(1, 5);
@@ -19,20 +20,21 @@ namespace Sjouke
         private bool _activeInput;
         private Vector2 _lookInput;
         private Vector3 _oldLookInput;
+        private Vector2 _oldRot;
+        private Vector2 _lookRot;
         private float _currentAcceleration;
         private bool _playerLock;
 
         private void Start()
         {
 #if UNITY_EDITOR
+            DebugUtility.HandleErrorIfNullFindObject<Transform, HUDRotator>(gameObject, this);
             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDRotator>(InputHandler, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDRotator>(PlayerController, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled += context => OnLookInput(false, Vector2.zero);
 
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDRotator>(PlayerController, this, gameObject);
-#endif
             PlayerController.onPlayerJump += OnPlayerJump;
             PlayerController.onPlayerLock += OnPlayerLock;
         }
@@ -62,6 +64,11 @@ namespace Sjouke
 
             if (!_playerLock)
                 _oldLookInput = displacement;
+        }
+
+        private void LateUpdate()
+        {
+            _oldRot = new Vector2(PlayerCamTransform.eulerAngles.x, PlayerController.transform.eulerAngles.y);
         }
 
         private void OnLookInput(bool active, Vector2 input)
