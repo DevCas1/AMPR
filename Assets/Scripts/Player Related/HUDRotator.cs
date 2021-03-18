@@ -41,7 +41,7 @@ namespace Sjouke
 
         private void Update()
         {
-            Vector3 displacement = Vector3.Lerp(_oldLookInput,
+            Vector3 displacement = Vector3.Lerp(_oldLookInput,                                          // TODO: Replace input-based displacement with position-based difference
                                                 _playerLock ? Vector3.zero : new Vector3(-_lookInput.y,
                                                                                          _lookInput.x,
                                                                                          0),

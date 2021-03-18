@@ -49,13 +49,13 @@ namespace Sjouke
         [Tooltip("The lowest angle at which the player can look down in degrees. (90 is straight downard)"), Range(0, 90)]
         public int MinCameraAngle = 90;
 
-        public bool UseHeadbob;
-        [EnableIf(nameof(UseHeadbob))]
-        public Transform TransformToBob;
-        [EnableIf(nameof(UseHeadbob))]
-        public float HeadBobBaseInterval;
-        [EnableIf(nameof(UseHeadbob))]
-        public CurveControlledBob HeadbobSettings;
+        // public bool UseHeadbob;
+        // [EnableIf(nameof(UseHeadbob))]
+        // public Transform TransformToBob;
+        // [EnableIf(nameof(UseHeadbob))]
+        // public float HeadBobBaseInterval;
+        // [EnableIf(nameof(UseHeadbob))]
+        // public CurveControlledBob HeadbobSettings;
 
         [Header("Jump Settings")]
 
@@ -74,6 +74,11 @@ namespace Sjouke
         public float JumpCooldown;
         [Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
         public int AmountOfJumps;
+
+        public Vector2 Torque
+        {
+            get => _rotationVector;
+        }
 
         public delegate void PlayerJumpEvent();
         public delegate void PlayerLockEvent(bool state);
@@ -98,12 +103,14 @@ namespace Sjouke
         private Vector2 _currentMovementVector;
         private double _currentAcceleration;
 
+        // Rotation related
+        private Vector2 _rotationVector;
+
         // Jump related
         private bool _jumpInput;
         private bool _isJumping;
         private bool _isGrounded;
         private Vector3 _groundNormal;
-        // private float _currentJumpPull;
         private double _jumpCooldownTimer;
         private int _timesJumped;
 
@@ -347,43 +354,45 @@ namespace Sjouke
 
         private void UpdateRotations()
         {
-            float newRotation;
-            float newCameraRotation;
+            Vector2 newRotation; // X for Camera rotation, Y for Player rotation
 
             if (_lockOnStatus == LockOnStatus.None)
             {
                 float deltaTime = Time.deltaTime;
                 Vector2 newLookVector = _lookInput * TurnSpeed;
 
-                newRotation = transform.rotation.eulerAngles.y + (InverseX ? -newLookVector.x : newLookVector.x) * deltaTime;
-                newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y) * deltaTime;
+                newRotation = new Vector2(transform.rotation.eulerAngles.y + (InverseX ? -newLookVector.x : newLookVector.x),
+                                          _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y)) * deltaTime;
+                // newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y)) * deltaTime;
             }
             else
             {
-                Vector3 targetPos = _lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition;
-                Vector3 targetDir = (targetPos - new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z)).normalized;
+                // Vector3 targetPos = ;
+                newRotation = ((_lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition) - new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z)).normalized;
+                // newRotation = targetDir.y;
+                // newCameraRotation = targetDir.x;
 
-                newRotation = targetDir.y;
-                newCameraRotation = targetDir.x;
-
-                // Debug.DrawLine(Vector3.zero, new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z).normalized, Color.magenta);
-                Debug.DrawRay(targetDir, -targetDir, Color.magenta);
+                // Debug.DrawRay(targetDir, -targetDir, Color.magenta);
             }
 
-            if (newCameraRotation < 180 && newCameraRotation > MinCameraAngle)
+            if (newRotation.x < 180 && newRotation.x > MinCameraAngle)
             {
-                newCameraRotation = MinCameraAngle;
+                newRotation.x = MinCameraAngle;
                 RemoveLockOn();
             }
 
-            if (newCameraRotation > 180 && newCameraRotation < MaxCameraAngle)
+            if (newRotation.x > 180 && newRotation.x < MaxCameraAngle)
             {
-                newCameraRotation = MaxCameraAngle;
+                newRotation.x = MaxCameraAngle;
                 RemoveLockOn();
             }
 
-            transform.rotation = Quaternion.Euler(0, newRotation, 0);
-            _playerCamTransform.localRotation = Quaternion.Euler(newCameraRotation, 0, 0);
+            _rotationVector = new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
+
+            transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
+            _playerCamTransform.localRotation = Quaternion.Euler(newRotation.x, 0, 0);
+
+            _rotationVector -= new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
         }
 
         public void LookAt(Transform lockTransform)
