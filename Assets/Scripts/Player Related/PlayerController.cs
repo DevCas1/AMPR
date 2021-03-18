@@ -96,7 +96,7 @@ namespace Sjouke
 
         // Movement related
         private Vector2 _currentMovementVector;
-        private float _currentAcceleration;
+        private double _currentAcceleration;
 
         // Jump related
         private bool _jumpInput;
@@ -104,7 +104,7 @@ namespace Sjouke
         private bool _isGrounded;
         private Vector3 _groundNormal;
         // private float _currentJumpPull;
-        private float _jumpCooldownTimer;
+        private double _jumpCooldownTimer;
         private int _timesJumped;
 
         // Jump check related
@@ -139,7 +139,8 @@ namespace Sjouke
 #endif
             _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
 #endif
         }
 
@@ -155,7 +156,7 @@ namespace Sjouke
             controls.Player.Look.performed += context => OnPlayerLook(context.ReadValue<Vector2>());
             controls.Player.Look.canceled += context => OnPlayerLook(Vector2.zero);
             controls.Player.Jump.performed += context => OnPlayerJump();
-            controls.Player.Lock.performed += context => OnPlayerLockOn();
+            // controls.Player.Lock.performed += context => OnPlayerLockOn();
             controls.Player.Lock.canceled += context => RemoveLockOn();
         }
 
@@ -262,7 +263,7 @@ namespace Sjouke
             //     HeadbobSettings.DoHeadBob(newMovementVector.magnitude);
             // }
 
-            Mathf.Clamp(_currentAcceleration, 0, 1);
+            Mathf.Clamp((float)_currentAcceleration, 0, 1);
 
             Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
 

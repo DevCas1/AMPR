@@ -39,12 +39,10 @@ namespace Sjouke
 
         private void Update()
         {
-            bool verticalLook = !_playerLock && (Mathf.Abs(_lookInput.y) > Mathf.Abs(_lookInput.x));
-
-            Vector3 displacement = Vector3.Lerp(_oldLookInput, 
-                                                _playerLock ? Vector3.zero : new Vector3(-_lookInput.y, 
-                                                                                         verticalLook ? 0 : _lookInput.x, 
-                                                                                         0), 
+            Vector3 displacement = Vector3.Lerp(_oldLookInput,
+                                                _playerLock ? Vector3.zero : new Vector3(-_lookInput.y,
+                                                                                         _lookInput.x,
+                                                                                         0),
                                                 Mathf.SmoothStep(0, 1, _currentAcceleration));
 
             if (Mathf.Abs(displacement.x) > MaxLookEffect.x)
@@ -74,8 +72,6 @@ namespace Sjouke
 
         private void OnPlayerJump()
         {
-            // _jumpInput = true;
-            // _activeInput = true;
             _currentAcceleration = 0f;
             transform.DOBlendableLocalRotateBy(new Vector3(-JumpEffectStrength, 0, 0), JumpEffectDuration);
         }
