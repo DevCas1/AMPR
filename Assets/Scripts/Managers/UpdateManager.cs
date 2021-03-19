@@ -3,7 +3,7 @@ using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
     public class UpdateManager : MonoBehaviour
     {

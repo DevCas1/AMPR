@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
     public class HUDRotator : MonoBehaviour
     {
@@ -53,10 +53,15 @@ namespace Sjouke
             if (Mathf.Abs(displacement.y) > MaxLookEffect.y)
                 displacement.y = displacement.y > 0 ? MaxLookEffect.y : -MaxLookEffect.y;
 
-            if (_activeInput && _currentAcceleration < 1)
-                _currentAcceleration += Time.deltaTime * LookEffectStrength;
-            if (!_activeInput && _currentAcceleration > 0)
-                _currentAcceleration -= Time.deltaTime * LookEffectStrength;
+            switch (_activeInput)
+            {
+                case true when _currentAcceleration < 1:
+                    _currentAcceleration += Time.deltaTime * LookEffectStrength;
+                    break;
+                case false when _currentAcceleration > 0:
+                    _currentAcceleration -= Time.deltaTime * LookEffectStrength;
+                    break;
+            }
 
             transform.localRotation = Quaternion.Slerp(transform.localRotation,
                                                        Quaternion.Euler(displacement * LookEffectStrength),

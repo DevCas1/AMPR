@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Sjouke.ExtensionMethods;
 
-namespace Sjouke
+namespace AMPR
 {
     //internal enum BlurStatus { SetBlur, Setting, Blurring, Removing, Done, None }
 

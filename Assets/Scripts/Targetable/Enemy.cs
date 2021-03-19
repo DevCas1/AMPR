@@ -2,19 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
-    public class Enemy : MonoBehaviour, ITargetable
+    public class Enemy : Targetable
     {
-
-        public void OnBecameInvisible()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void OnBecameVisible()
-        {
-            throw new System.NotImplementedException();
-        }
+        
     }
 }

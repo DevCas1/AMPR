@@ -1,9 +1,9 @@
 using DG.Tweening;
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
-    public class CannonPuncher : MonoBehaviour // TODO: Implement rotation over time
+    public class CannonAnimator : MonoBehaviour // TODO: Implement rotation over time
     {
         [Header("References")]
         public InputHandler InputHandler;
@@ -28,7 +28,7 @@ namespace Sjouke
         private void Start()
         {
             InputHandler.Controls.Player.Fire.performed += context => OnCannonFire();
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonPuncher>(InputHandler, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
         }
 
         private void OnCannonFire()

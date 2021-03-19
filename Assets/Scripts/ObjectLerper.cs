@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
     public class ObjectLerper : MonoBehaviour
     {
