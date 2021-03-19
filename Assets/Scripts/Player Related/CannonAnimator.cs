@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AMPR
 {
-    public class CannonAnimator : MonoBehaviour // TODO: Implement rotation over time
+    public class CannonAnimator : MonoBehaviour // TODO: Implement local rotation over time by high rate of fire
     {
         [Header("References")]
         public InputHandler InputHandler;
@@ -13,18 +13,11 @@ namespace AMPR
         public float PunchDuration = 0.5f;
         public float PunchElasticity = 0.5f;
 
-        // [Header("Rotation related")]
-        // public float RotationRange;
-        // public float RotationDuration;
-
         private bool _punchActive;
+
         private Tweener _punchTweener;
-        // private float _repeatedFire;
-        // [SerializeField]
-        // private float _minRepeatedFre;
 
 
-        // Start is called before the first frame update
         private void Start()
         {
             InputHandler.Controls.Player.Fire.performed += context => OnCannonFire();
@@ -36,25 +29,22 @@ namespace AMPR
             if (_punchActive)
                 _punchTweener.Complete(false);
 
-            // _repeatedFire += 1;
+            TweenCallback SetPunchActive(bool active)
+            {
+                _punchActive = active;
+                return null;
+            }
 
-            // if (_repeatedFire > _minRepeatedFre)
-            // {
-            //     float range = Random.Range(-RotationRange, RotationRange);
-            //     transform.DOLocalRotate(new Vector3(range, 0, 0), RotationDuration);
-            // }
+            TweenCallback RemoveReference()
+            {
+                _punchTweener = null;
+                return null;
+            }
 
             _punchTweener = transform.DOPunchPosition(new Vector3(0, 0, -PunchForce), PunchDuration, 0, PunchElasticity)
-                                     .OnStart(() => _punchActive = true)
-                                     .OnComplete(() => _punchActive = false);
-                                 //  .OnComplete(OnPunchComplete);
+                .OnStart(SetPunchActive(true))
+                .OnComplete(SetPunchActive(false))
+                .OnKill(RemoveReference());
         }
-
-        // private void OnPunchComplete()
-        // {
-        //     _repeatedFire = 0;
-        //     transform.DORotate(Vector3.zero, RotationDuration);
-        //     _punchActive = false;
-        // }
     }
 }

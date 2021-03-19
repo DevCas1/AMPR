@@ -58,10 +58,10 @@ namespace AMPR
         private float JumpForce = 8;
         [SerializeField, Tooltip("The ForceMode used for the jump.")]
         private ForceMode JumpForceMode = ForceMode.VelocityChange;
-        [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in irregular positives, while too high might feel like you can jump without touching any ground.")]
+        [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
         private float JumpLandCheckDistance = 0.15f;
         [SerializeField]
-        private float JumpCheckOffset = 0.1f;
+        private Vector3 JumpCheckOffset;
         [SerializeField, Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
         private float JumpLandCheckRadius = 0.2f;
         [SerializeField, Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
@@ -75,11 +75,11 @@ namespace AMPR
 
         public delegate void PlayerJumpEvent();
         public delegate void PlayerLockEvent(bool state);
-        public event PlayerJumpEvent onPlayerJump;
-        public event PlayerLockEvent onPlayerLock;
+        public event PlayerJumpEvent ONPlayerJump;
+        public event PlayerLockEvent ONPlayerLock;
 
         [Header("Advanced"), SerializeField]
-        private ushort _rigidbodySolverIterations = 32;
+        private ushort RigidbodySolverIterations = 32;
 
         private Transform _playerCamTransform;
         private Rigidbody _rb;
@@ -187,7 +187,7 @@ namespace AMPR
 
             _availableTargets = new List<Targetable>(10);
 
-            _rb.solverIterations = _rigidbodySolverIterations;
+            _rb.solverIterations = RigidbodySolverIterations;
 
             // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
         }
@@ -292,7 +292,7 @@ namespace AMPR
 #endif
 
             // bool grounded = Physics.SphereCastNonAlloc(transform.position, JumpLandCheckRadius, Vector3.down, _nonAllocBuffer, JumpLandCheckDistance, JumpableLayers) > 0;
-            int hits = Physics.SphereCastNonAlloc(transform.position,
+            int hits = Physics.SphereCastNonAlloc(transform.position + JumpCheckOffset,
                                                   JumpLandCheckRadius,
                                                   Vector3.down,
                                                   _nonAllocBuffer,
@@ -317,9 +317,9 @@ namespace AMPR
                 for (int index = 1; index < hits; index++)
                 {
                     float newDistance = Vector3.Distance(_nonAllocBuffer[index].point, transform.position);
-                    if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance) 
+                    if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance)
                         continue;
-                    
+
                     nearestHit = _nonAllocBuffer[index];
                     nearestDistance = newDistance;
                 }
@@ -342,7 +342,7 @@ namespace AMPR
 
             _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
 
-            onPlayerJump?.Invoke();
+            ONPlayerJump?.Invoke();
         }
 
         private void UpdateRotations()
@@ -405,7 +405,7 @@ namespace AMPR
             _lockOnPosition = Vector3.zero;
             _lockOnTransform = null;
 
-            onPlayerLock?.Invoke(false);
+            ONPlayerLock?.Invoke(false);
         }
 
         private void OnPlayerMove(Vector2? input = null)
@@ -431,7 +431,7 @@ namespace AMPR
 
             LookAt(Vector3.zero);
 
-            onPlayerLock?.Invoke(true);
+            ONPlayerLock?.Invoke(true);
         }
 
         public void RegisterTargetable(Targetable targetable)

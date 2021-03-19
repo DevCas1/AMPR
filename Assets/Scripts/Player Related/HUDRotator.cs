@@ -35,8 +35,8 @@ namespace AMPR
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled += context => OnLookInput(false, Vector2.zero);
 
-            PlayerController.onPlayerJump += OnPlayerJump;
-            PlayerController.onPlayerLock += OnPlayerLock;
+            PlayerController.ONPlayerJump += OnPlayerJump;
+            PlayerController.ONPlayerLock += OnPlayerLock;
         }
 
         private void Update()
@@ -98,8 +98,8 @@ namespace AMPR
         {
             InputHandler.Controls.Player.Look.performed -= context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled -= context => OnLookInput(false, Vector2.zero);
-            PlayerController.onPlayerJump -= OnPlayerJump;
-            PlayerController.onPlayerLock -= OnPlayerLock;
+            PlayerController.ONPlayerJump -= OnPlayerJump;
+            PlayerController.ONPlayerLock -= OnPlayerLock;
         }
     }
 }

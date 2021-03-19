@@ -34,8 +34,11 @@ namespace AMPR
 
             _useUpdate = !IsUsingFixedUpdate;
 
-
+#if UNITY_EDITOR
             DOTween.Init(true, false);
+#else
+            DOTween.Init(true, false, LogBehaviour.ErrorsOnly);
+#endif
             DontDestroyOnLoad(this);
         }
 
