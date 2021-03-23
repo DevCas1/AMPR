@@ -304,14 +304,14 @@ MonoBehaviour:
   JumpForce: 8
   JumpForceMode: 2
   JumpLandCheckDistance: 0.15
-  JumpCheckOffset: 0.1
+  JumpCheckOffset: {x: 0, y: 0, z: 0}
   JumpLandCheckRadius: 0.2
   JumpableLayers:
     serializedVersion: 2
     m_Bits: 128
   JumpCooldown: 0.15
   AmountOfJumps: 2
-  _rigidbodySolverIterations: 32
+  RigidbodySolverIterations: 32
 --- !u!1 &2078337431712483336
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,6 +622,9 @@ MonoBehaviour:
   PunchForce: 0.33
   PunchDuration: 0.4
   PunchElasticity: 0.33
+  BobMagnitudeMultiplier: {x: 0.025, y: 0.5}
+  SinusOffset: {x: 0, y: 0}
+  BobSpeed: 4
 --- !u!1 &8671706102307113655
 GameObject:
   m_ObjectHideFlags: 0
