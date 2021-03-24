@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
     public class InputHandler : MonoBehaviour
     {

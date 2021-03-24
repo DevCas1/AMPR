@@ -1,4 +1,4 @@
-namespace Sjouke
+namespace AMPR
 {
     public interface ITargetable
     {

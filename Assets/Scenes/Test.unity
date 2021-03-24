@@ -325,7 +325,7 @@ GameObject:
   - component: {fileID: 335502309}
   - component: {fileID: 335502308}
   - component: {fileID: 335502307}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -990,7 +990,7 @@ GameObject:
   - component: {fileID: 908437762}
   - component: {fileID: 908437761}
   - component: {fileID: 908437760}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (02)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1485,7 +1485,7 @@ GameObject:
   - component: {fileID: 1220866527}
   - component: {fileID: 1220866526}
   - component: {fileID: 1220866525}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Cube (01)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1568,17 +1568,6 @@ Transform:
   m_Father: {fileID: 1816219194}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1223741342 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6944414915189387108, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
-  m_PrefabInstance: {fileID: 1887140550618375744}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2bfc25f58c02884687b5d75b0bffe17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1266434747
 GameObject:
   m_ObjectHideFlags: 0
@@ -2500,10 +2489,6 @@ PrefabInstance:
       propertyPath: InputHandler
       value: 
       objectReference: {fileID: 1180260932}
-    - target: {fileID: 1817510677, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
-      propertyPath: PlayerController
-      value: 
-      objectReference: {fileID: 1223741342}
     - target: {fileID: 1887140552146481055, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
       propertyPath: m_Name
       value: Player

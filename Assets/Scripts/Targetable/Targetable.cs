@@ -1,17 +1,17 @@
 using UnityEngine;
 
-namespace Sjouke
+namespace AMPR
 {
     public abstract class Targetable : MonoBehaviour, ITargetable
     {
-        protected PlayerController player;
+        protected PlayerController Player;
 
         // Start is called before the first frame update
         private void Start()
         {
-            player = FindObjectOfType<PlayerController>();
+            Player = FindObjectOfType<PlayerController>();
 
-            player.RegisterTargetable(this);
+            Player.RegisterTargetable(this);
         }
 
         public void OnBecameInvisible()

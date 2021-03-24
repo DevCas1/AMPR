@@ -3,7 +3,7 @@ using NaughtyAttributes;
 using UnityEngine;
 using UnityStandardAssets.Utility;
 
-namespace Sjouke
+namespace AMPR
 {
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : MonoBehaviour
@@ -20,68 +20,67 @@ namespace Sjouke
 
         [Header("Movement Values")]
 
-        [Tooltip("The speed at which the player moves.")]
-        public float MovementSpeed;
-        public bool UseAcceleration;
-        [Tooltip("Rate of acceleration and deceleration when the player moves."), /*Min(0),*/ Range(0, 1), EnableIf(nameof(UseAcceleration))]
-        public float Acceleration = 0.5f;
-        [Tooltip("Whether to clamp the player's maximum velocity to a specific value.")]
-        public bool ClampVelocity;
-        [Tooltip("The max magnitude for player movement."), EnableIf(nameof(ClampVelocity))]
-        public float MaxVelocityMagnitude;
-        public bool UseSlopeModifier;
-        [EnableIf(nameof(UseSlopeModifier))]
-        public AnimationCurve SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f), new Keyframe(90.0f, 0.0f));
+        [SerializeField, Tooltip("The speed at which the player moves.")]
+        private float MovementSpeed = 450;
+        [SerializeField]
+        private bool UseAcceleration = true;
+        [SerializeField, Tooltip("Rate of acceleration and deceleration when the player moves."), /*Min(0),*/ Range(0, 1), EnableIf(nameof(UseAcceleration))]
+        private float Acceleration = 0.15f;
+        [SerializeField, Tooltip("Whether to clamp the player's maximum velocity to a specific value.")]
+        private bool ClampVelocity;
+        [SerializeField, Tooltip("The max magnitude for player movement."), EnableIf(nameof(ClampVelocity))]
+        private float MaxVelocityMagnitude;
+        [SerializeField]
+        private bool UseSlopeModifier;
+        [SerializeField, EnableIf(nameof(UseSlopeModifier))]
+        private AnimationCurve SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f), new Keyframe(90.0f, 0.0f));
 
         [Header("Camera Settings")]
 
-        [Tooltip("The rate at which the camera will turn relative to the input.")]
-        public float TurnSpeed;
-        [Tooltip("Inverse the X axis of camera input.")]
-        public bool InverseX;
-        [Tooltip("Inverse the Y axis of camera input.")]
-        public bool InverseY;
-        public bool UseRotationSmoothing;
-        [Tooltip("The amount of smoothing used while rotating the player camera."), Min(0), EnableIf(nameof(UseRotationSmoothing))]
-        public float SmoothTurnSpeed;
-        [Tooltip("The highest angle at which the player can look up in degrees. (270 is straight upward)"), Range(270, 359)]
-        public int MaxCameraAngle = 270;
-        [Tooltip("The lowest angle at which the player can look down in degrees. (90 is straight downard)"), Range(0, 90)]
-        public int MinCameraAngle = 90;
-
-        public bool UseHeadbob;
-        [EnableIf(nameof(UseHeadbob))]
-        public Transform TransformToBob;
-        [EnableIf(nameof(UseHeadbob))]
-        public float HeadBobBaseInterval;
-        [EnableIf(nameof(UseHeadbob))]
-        public CurveControlledBob HeadbobSettings;
+        [SerializeField, Tooltip("The rate at which the camera will turn relative to the input.")]
+        private float TurnSpeed = 16;
+        [SerializeField, Tooltip("Inverse the X axis of camera input.")]
+        private bool InverseX;
+        [SerializeField, Tooltip("Inverse the Y axis of camera input.")]
+        private bool InverseY;
+        [SerializeField]
+        private bool UseRotationSmoothing;
+        [SerializeField, Tooltip("The amount of smoothing used while rotating the player camera."), Min(0), EnableIf(nameof(UseRotationSmoothing))]
+        private float SmoothTurnSpeed;
+        [SerializeField, Tooltip("The highest angle at which the player can look up in degrees. (270 is straight upward)"), Range(270, 359)]
+        private int MaxCameraAngle = 270;
+        [SerializeField, Tooltip("The lowest angle at which the player can look down in degrees. (90 is straight downard)"), Range(0, 90)]
+        private int MinCameraAngle = 90;
 
         [Header("Jump Settings")]
 
-        [Tooltip("The amount of force applied to the player when performing a jump.")]
-        public float JumpForce = 10;
-        [Tooltip("The ForceMode used for the jump.")]
-        public ForceMode JumpForceMode = ForceMode.VelocityChange;
-        [Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in irregular positives, while too high might feel like you can jump without touching any ground.")]
-        public float JumpLandCheckDistance;
-        public float JumpCheckOffset;
-        [Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
-        public float JumpLandCheckRadius;
-        [Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
-        public LayerMask JumpableLayers;
-        [Tooltip("The amount of time repeated jump inputs will be ignored, after a grounded jump has been performed.")]
-        public float JumpCooldown;
-        [Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
-        public int AmountOfJumps;
+        [SerializeField, Tooltip("The amount of force applied to the player when performing a jump.")]
+        private float JumpForce = 8;
+        [SerializeField, Tooltip("The ForceMode used for the jump.")]
+        private ForceMode JumpForceMode = ForceMode.VelocityChange;
+        [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
+        private float JumpLandCheckDistance = 0.15f;
+        [SerializeField]
+        private Vector3 JumpCheckOffset;
+        [SerializeField, Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
+        private float JumpLandCheckRadius = 0.2f;
+        [SerializeField, Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
+        private LayerMask JumpableLayers;
+        [SerializeField, Tooltip("The amount of time repeated jump inputs will be ignored, after a grounded jump has been performed.")]
+        private float JumpCooldown = 0.15f;
+        [SerializeField, Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
+        private int AmountOfJumps = 2;
 
-        // Declare the delegate (if using non-generic pattern).
-        public delegate void PlayerEvent();
-        // Declare the event.
-        public event PlayerEvent onPlayerJump;
+        public Vector2 Torque => _rotationVector;
+
+        public delegate void PlayerJumpEvent();
+        public delegate void PlayerLockEvent(bool state);
+        public event PlayerJumpEvent ONPlayerJump;
+        public event PlayerJumpEvent ONPlayerLand;
+        public event PlayerLockEvent ONPlayerLock;
 
         [Header("Advanced"), SerializeField]
-        private ushort _rigidbodySolverIterations = 10;
+        private ushort RigidbodySolverIterations = 32;
 
         private Transform _playerCamTransform;
         private Rigidbody _rb;
@@ -96,15 +95,17 @@ namespace Sjouke
 
         // Movement related
         private Vector2 _currentMovementVector;
-        private float _currentAcceleration;
+        private double _currentAcceleration;
+
+        // Rotation related
+        private Vector2 _rotationVector;
 
         // Jump related
         private bool _jumpInput;
         private bool _isJumping;
         private bool _isGrounded;
         private Vector3 _groundNormal;
-        // private float _currentJumpPull;
-        private float _jumpCooldownTimer;
+        private double _jumpCooldownTimer;
         private int _timesJumped;
 
         // Jump check related
@@ -139,7 +140,8 @@ namespace Sjouke
 #endif
             _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
 #endif
         }
 
@@ -150,12 +152,12 @@ namespace Sjouke
 #endif
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed += context => OnPlayerMove(true, context.ReadValue<Vector2>());
-            controls.Player.Move.canceled += context => OnPlayerMove(false);
+            controls.Player.Move.performed += context => OnPlayerMove(context.ReadValue<Vector2>());
+            controls.Player.Move.canceled += context => OnPlayerMove();
             controls.Player.Look.performed += context => OnPlayerLook(context.ReadValue<Vector2>());
             controls.Player.Look.canceled += context => OnPlayerLook(Vector2.zero);
             controls.Player.Jump.performed += context => OnPlayerJump();
-            controls.Player.Lock.performed += context => OnPlayerLockOn();
+            // controls.Player.Lock.performed += context => OnPlayerLockOn();
             controls.Player.Lock.canceled += context => RemoveLockOn();
         }
 
@@ -186,7 +188,7 @@ namespace Sjouke
 
             _availableTargets = new List<Targetable>(10);
 
-            _rb.solverIterations = _rigidbodySolverIterations;
+            _rb.solverIterations = RigidbodySolverIterations;
 
             // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
         }
@@ -262,14 +264,14 @@ namespace Sjouke
             //     HeadbobSettings.DoHeadBob(newMovementVector.magnitude);
             // }
 
-            Mathf.Clamp(_currentAcceleration, 0, 1);
+            Mathf.Clamp((float)_currentAcceleration, 0, 1);
 
-            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y) * deltaTime);
+            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
 
             if (ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
 
-            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()));
+            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()) * deltaTime);
 
             _currentMovementVector = newMovementVector;
         }
@@ -287,15 +289,15 @@ namespace Sjouke
         private void CheckForGround()
         {
 #if UNITY_EDITOR
-            Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
+            // Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
 #endif
 
             // bool grounded = Physics.SphereCastNonAlloc(transform.position, JumpLandCheckRadius, Vector3.down, _nonAllocBuffer, JumpLandCheckDistance, JumpableLayers) > 0;
-            int hits = Physics.SphereCastNonAlloc(transform.position,
-                                                  _collider.radius /** (1.0f - advancedSettings.shellOffset)*/,
+            int hits = Physics.SphereCastNonAlloc(transform.position + JumpCheckOffset,
+                                                  JumpLandCheckRadius,
                                                   Vector3.down,
                                                   _nonAllocBuffer,
-                                                  ((_collider.height / 2) - _collider.radius) + JumpLandCheckDistance,
+                                                  JumpLandCheckDistance,
                                                   JumpableLayers,
                                                   QueryTriggerInteraction.Ignore);
 
@@ -316,11 +318,11 @@ namespace Sjouke
                 for (int index = 1; index < hits; index++)
                 {
                     float newDistance = Vector3.Distance(_nonAllocBuffer[index].point, transform.position);
-                    if (newDistance < nearestDistance)
-                    {
-                        nearestHit = _nonAllocBuffer[index];
-                        nearestDistance = newDistance;
-                    }
+                    if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance)
+                        continue;
+
+                    nearestHit = _nonAllocBuffer[index];
+                    nearestDistance = newDistance;
                 }
             }
 
@@ -341,44 +343,49 @@ namespace Sjouke
 
             _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
 
-            onPlayerJump?.Invoke();
+            ONPlayerJump?.Invoke();
         }
 
         private void UpdateRotations()
         {
-            float newRotation;
-            float newCameraRotation;
+            Vector2 newRotation; // X for Camera rotation, Y for Player rotation
 
             if (_lockOnStatus == LockOnStatus.None)
             {
-                float deltaTime = Time.deltaTime;
-                Vector2 newLookVector = _lookInput * TurnSpeed;
+                Vector2 newLookVector = _lookInput * (TurnSpeed * Time.deltaTime);
 
-                newRotation = transform.rotation.eulerAngles.y + (InverseX ? -newLookVector.x : newLookVector.x) * deltaTime;
-                newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y) * deltaTime;
+                newRotation = new Vector2(transform.rotation.eulerAngles.y + (InverseX ? -newLookVector.x : newLookVector.x),
+                                          _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y));
+                // newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y)) * deltaTime;
             }
             else
             {
-                Vector3 targetDir = (_lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition) - transform.position;
+                // Vector3 targetPos = ;
+                newRotation = ((_lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition) - new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z)).normalized;
+                // newRotation = targetDir.y;
+                // newCameraRotation = targetDir.x;
 
-                newRotation = targetDir.y;
-                newCameraRotation = targetDir.x;
+                // Debug.DrawRay(targetDir, -targetDir, Color.magenta);
             }
 
-            if (newCameraRotation < 180 && newCameraRotation > MinCameraAngle)
+            if (newRotation.y < 180 && newRotation.y > MinCameraAngle)
             {
-                newCameraRotation = MinCameraAngle;
+                newRotation.y = MinCameraAngle;
                 RemoveLockOn();
             }
 
-            if (newCameraRotation > 180 && newCameraRotation < MaxCameraAngle)
+            if (newRotation.y > 180 && newRotation.y < MaxCameraAngle)
             {
-                newCameraRotation = MaxCameraAngle;
+                newRotation.y = MaxCameraAngle;
                 RemoveLockOn();
             }
 
-            transform.rotation = Quaternion.Euler(0, newRotation, 0);
-            _playerCamTransform.localRotation = Quaternion.Euler(newCameraRotation, 0, 0);
+            // _rotationVector = new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
+
+            transform.rotation = Quaternion.Euler(0, newRotation.x, 0);
+            _playerCamTransform.localRotation = Quaternion.Euler(newRotation.y, 0, 0);
+
+            // _rotationVector -= new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
         }
 
         public void LookAt(Transform lockTransform)
@@ -398,12 +405,14 @@ namespace Sjouke
             _lockOnStatus = LockOnStatus.None;
             _lockOnPosition = Vector3.zero;
             _lockOnTransform = null;
+
+            ONPlayerLock?.Invoke(false);
         }
 
-        private void OnPlayerMove(bool activeInput, Vector2? input = null)
+        private void OnPlayerMove(Vector2? input = null)
         {
-            _activeInput = activeInput;
-            _movementInput = activeInput ? input.Value : Vector2.zero;
+            _activeInput = input != null;
+            _movementInput = input ?? Vector2.zero;
         }
 
         private void OnPlayerLook(Vector2 input) => _lookInput = input;
@@ -415,6 +424,7 @@ namespace Sjouke
             _isGrounded = true;
             _isJumping = false;
             _timesJumped = 0;
+            ONPlayerLand?.Invoke();
         }
 
         private void OnPlayerLockOn()
@@ -422,6 +432,8 @@ namespace Sjouke
             //TODO: Check for all lockable targets in view, and lock onto the one nearest to the screen's center.
 
             LookAt(Vector3.zero);
+
+            ONPlayerLock?.Invoke(true);
         }
 
         public void RegisterTargetable(Targetable targetable)
@@ -434,8 +446,8 @@ namespace Sjouke
         {
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed -= context => OnPlayerMove(true, context.ReadValue<Vector2>());
-            controls.Player.Move.canceled -= context => OnPlayerMove(false);
+            controls.Player.Move.performed -= context => OnPlayerMove(context.ReadValue<Vector2>());
+            controls.Player.Move.canceled -= context => OnPlayerMove();
             controls.Player.Look.performed -= context => OnPlayerLook(context.ReadValue<Vector2>());
             controls.Player.Look.canceled -= context => OnPlayerLook(Vector2.zero);
             controls.Player.Jump.performed -= context => OnPlayerJump();
