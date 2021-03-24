@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Sjouke.ExtensionMethods
+namespace AMPR.ExtensionMethod
 {
     public static class ExtensionMethod
     {

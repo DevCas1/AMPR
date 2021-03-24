@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.Manager
 {
     public class InputHandler : MonoBehaviour
     {

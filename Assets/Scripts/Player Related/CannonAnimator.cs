@@ -1,8 +1,9 @@
 using System;
+using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.PlayerController
 {
     public class CannonAnimator : MonoBehaviour // TODO: Implement local rotation over time by high rate of fire
     {

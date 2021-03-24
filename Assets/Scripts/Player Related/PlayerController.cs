@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using NaughtyAttributes;
 using UnityEngine;
-using UnityStandardAssets.Utility;
+using AMPR.Manager;
 
-namespace AMPR
+namespace AMPR.PlayerController
 {
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : MonoBehaviour

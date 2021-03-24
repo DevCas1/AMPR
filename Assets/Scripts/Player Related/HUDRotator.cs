@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.PlayerController
 {
     public class HUDRotator : MonoBehaviour
     {
