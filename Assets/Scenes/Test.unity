@@ -2538,17 +2538,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6693427477131894273, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
-      propertyPath: BobSpeed
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6693427477131894273, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
       propertyPath: InputHandler
       value: 
       objectReference: {fileID: 1180260932}
-    - target: {fileID: 6693427477131894273, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
-      propertyPath: BobMagnitudeMultiplier.y
-      value: 0.033
-      objectReference: {fileID: 0}
     - target: {fileID: 6944414915189387108, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
       propertyPath: InputHandler
       value: 

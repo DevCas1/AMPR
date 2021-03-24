@@ -76,6 +76,7 @@ namespace AMPR
         public delegate void PlayerJumpEvent();
         public delegate void PlayerLockEvent(bool state);
         public event PlayerJumpEvent ONPlayerJump;
+        public event PlayerJumpEvent ONPlayerLand;
         public event PlayerLockEvent ONPlayerLock;
 
         [Header("Advanced"), SerializeField]
@@ -423,6 +424,7 @@ namespace AMPR
             _isGrounded = true;
             _isJumping = false;
             _timesJumped = 0;
+            ONPlayerLand?.Invoke();
         }
 
         private void OnPlayerLockOn()

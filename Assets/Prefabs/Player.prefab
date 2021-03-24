@@ -257,7 +257,7 @@ MonoBehaviour:
   UpdateManager: {fileID: 0}
   MovementSpeed: 450
   UseAcceleration: 1
-  Acceleration: 0.15
+  Acceleration: 0.16
   ClampVelocity: 0
   MaxVelocityMagnitude: 0
   UseSlopeModifier: 0
@@ -619,12 +619,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputHandler: {fileID: 0}
+  PlayerController: {fileID: 6944414915189387108}
   PunchForce: 0.33
   PunchDuration: 0.4
   PunchElasticity: 0.33
-  BobMagnitudeMultiplier: {x: 0.025, y: 0.5}
-  SinusOffset: {x: 0, y: 0}
-  BobSpeed: 4
+  BobMagnitudeMultiplier: {x: 0.01, y: 0.033}
+  BobSpeed: 6
+  BobSmoothSpeed: 10
+  LandPunchForce: 0.05
 --- !u!1 &8671706102307113655
 GameObject:
   m_ObjectHideFlags: 0
