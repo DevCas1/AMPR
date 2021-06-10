@@ -5,8 +5,7 @@ namespace AMPR.Manager
     public class InputHandler : MonoBehaviour
     {
         public PlayerControls Controls => _controls ??= new PlayerControls();
-
-        private PlayerControls _controls;
+        private PlayerControls _controls = new PlayerControls();
 
         private void Start() // TODO:Integrate Cursor Lockstate with Menu UI
         {

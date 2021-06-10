@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using AMPR.Manager;
 using NaughtyAttributes;
 using UnityEngine;
-using AMPR.Manager;
 
 namespace AMPR.PlayerController
 {
     [RequireComponent(typeof(Rigidbody))]
+
     public class PlayerController : MonoBehaviour
     {
         private enum LockOnStatus { None, Transform, Position }

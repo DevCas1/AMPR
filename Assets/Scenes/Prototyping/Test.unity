@@ -2549,6 +2549,10 @@ PrefabInstance:
       propertyPath: UpdateManager
       value: 
       objectReference: {fileID: 1180260933}
+    - target: {fileID: 6944414915189387108, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
+      propertyPath: UseRotationSmoothing
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55f06b3e8a8d5cf4996ac7b0b001d90b, type: 3}
 --- !u!1001 &2149009575141592918
