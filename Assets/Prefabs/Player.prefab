@@ -51,6 +51,7 @@ MeshRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 0
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -253,7 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerCamera: {fileID: 1924537829846182630}
-  InputHandler: {fileID: 0}
+  InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
   UpdateManager: {fileID: 0}
   MovementSpeed: 450
   UseAcceleration: 1
@@ -618,7 +619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53cce1a0f0fb85e42b5c586968642ad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InputHandler: {fileID: 0}
+  InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
   PlayerController: {fileID: 6944414915189387108}
   PunchForce: 0.33
   PunchDuration: 0.4
@@ -870,7 +871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a25b3d45469d8241ac8ecae3f252335, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InputHandler: {fileID: 0}
+  InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
   PlayerController: {fileID: 6944414915189387108}
   PlayerCamTransform: {fileID: 8570696785518108774}
   LookEffectStrength: 1
