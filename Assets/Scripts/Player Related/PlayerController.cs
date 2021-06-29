@@ -131,26 +131,11 @@ namespace AMPR.PlayerController
 #endif
         }
 
-        private void Awake()
-        {
-            InitializeControls();
-
-            _playerCamTransform = PlayerCamera.transform;
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-#endif
-            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
-#if UNITY_EDITOR
-            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
-            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
-#endif
-        }
-
         private void InitializeControls()
         {
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
-#endif
+            // #if UNITY_EDITOR
+            //             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
+            // #endif
             PlayerControls controls = InputHandler.Controls;
 
             controls.Player.Move.performed += context => OnPlayerMove(context.ReadValue<Vector2>());
@@ -174,15 +159,26 @@ namespace AMPR.PlayerController
             if (InputHandler == null)
                 InputHandler = FindObjectOfType<InputHandler>();
 
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
-#endif
+            // #if UNITY_EDITOR
+            //             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
+            // #endif
 
             if (_collider == null)
                 _collider = GetComponentInChildren<CapsuleCollider>();
 
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+#endif
+            InitializeControls();
+
+            _playerCamTransform = PlayerCamera.transform;
+#if UNITY_EDITOR
+            DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
+#endif
+            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
+#if UNITY_EDITOR
+            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
+            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
 #endif
 
             _nonAllocBuffer = new RaycastHit[10];
@@ -192,6 +188,8 @@ namespace AMPR.PlayerController
             _rb.solverIterations = RigidbodySolverIterations;
 
             // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
+
+            InputHandler.Controls.Player.Enable();
         }
 
         private void OnEnable() => InputHandler.Controls.Player.Enable();

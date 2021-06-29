@@ -28,7 +28,7 @@ namespace AMPR.PlayerController
         {
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullFindObject<Transform, HUDRotator>(gameObject, this);
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDRotator>(InputHandler, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDRotator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDRotator>(PlayerController, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());

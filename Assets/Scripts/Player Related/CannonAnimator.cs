@@ -59,7 +59,7 @@ namespace AMPR.PlayerController
             PlayerController.ONPlayerJump += OnPlayerJump;
             PlayerController.ONPlayerLand += OnPlayerLand;
 
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, CannonAnimator>(PlayerController, this, gameObject);
 
             _startPos = LocalPos;

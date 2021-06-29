@@ -2,12 +2,16 @@ using UnityEngine;
 
 namespace AMPR.Manager
 {
-    public class InputHandler : MonoBehaviour
+    [CreateAssetMenu(menuName = "AMPR/Input Manager", fileName = "Input Handler")]
+    public class InputHandler : ScriptableObject
     {
-        public PlayerControls Controls { get => _controls; }
+        public PlayerControls Controls { get => _controls ??= new PlayerControls(); }
         private PlayerControls _controls;
 
-        private void Awake() => InitPlayerControls();
+        private void Reset()
+        {
+
+        }
 
         private void Start() // TODO:Integrate Cursor Lockstate with Menu UI
         {
@@ -23,5 +27,10 @@ namespace AMPR.Manager
         }
 
         private static void RemoveCursorLockState() => Cursor.lockState = CursorLockMode.None;
+
+        private static void CreateInputManagerSO()
+        {
+
+        }
     }
 }
