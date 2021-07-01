@@ -9,7 +9,7 @@ namespace AMPR.PlayerController
     {
         [Header("References")]
         public InputHandler InputHandler;
-        public PlayerController PlayerController;
+        public PlayerControllerV2 PlayerController;
 
         [Header("Punch Related")]
         [SerializeField]

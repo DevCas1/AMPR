@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace AMPR.PlayerController
 {
-    // [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(CharacterController))]
 
-    public class PlayerController : MonoBehaviour
+    public class PlayerControllerV2 : MonoBehaviour
     {
         private enum LockOnStatus { None, Transform, Position }
 
-        ///// Public Unity initialized \\\\\
+        /// Public Unity initialized \\\\\
         [Header("References")]
 
         [Tooltip("Reference to the camera attached to the Player object.")]
@@ -84,8 +84,8 @@ namespace AMPR.PlayerController
         private ushort RigidbodySolverIterations = 32;
 
         private Transform _playerCamTransform;
-        private Rigidbody _rb;
-        private CapsuleCollider _collider;
+        private CharacterController _controller;
+        // private CapsuleCollider _collider;
         private bool _useUpdateLoop;
 
         // Input related
@@ -95,7 +95,7 @@ namespace AMPR.PlayerController
         // private Queue<Vector2> _movementInputBuffer; // Required if FixedUpdate is not linked to Update
 
         // Movement related
-        private Vector2 _currentMovementVector;
+        private Vector2 _currentMovementVector = Vector2.zero;
         private double _currentAcceleration;
 
         // Rotation related
@@ -105,7 +105,7 @@ namespace AMPR.PlayerController
         private bool _jumpInput;
         private bool _isJumping;
         private bool _isGrounded;
-        private Vector3 _groundNormal;
+        // private Vector3 _groundNormal;
         private double _jumpCooldownTimer;
         private int _timesJumped;
 
@@ -121,14 +121,14 @@ namespace AMPR.PlayerController
 
         private void Reset()
         {
-            _rb = GetComponent<Rigidbody>();
+            _controller = GetComponent<CharacterController>();
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerController>(_controller, this, gameObject);
 #endif
-            _collider = GetComponentInChildren<CapsuleCollider>();
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
-#endif
+            //             _collider = GetComponentInChildren<CapsuleCollider>();
+            // #if UNITY_EDITOR
+            //             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+            // #endif
         }
 
         private void InitializeControls()
@@ -149,11 +149,11 @@ namespace AMPR.PlayerController
 
         private void Start()
         {
-            if (_rb == null)
-                _rb = GetComponent<Rigidbody>();
+            if (_controller == null)
+                _controller = GetComponent<CharacterController>();
 
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerController>(_controller, this, gameObject);
 #endif
 
             if (InputHandler == null)
@@ -163,20 +163,20 @@ namespace AMPR.PlayerController
             //             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
             // #endif
 
-            if (_collider == null)
-                _collider = GetComponentInChildren<CapsuleCollider>();
+            //             if (_collider == null)
+            //                 _collider = GetComponentInChildren<CapsuleCollider>();
 
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
-#endif
+            // #if UNITY_EDITOR
+            //             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+            // #endif
+
             InitializeControls();
 
             _playerCamTransform = PlayerCamera.transform;
+
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-#endif
-            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
-#if UNITY_EDITOR
+
             // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
             DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
 #endif
@@ -185,7 +185,7 @@ namespace AMPR.PlayerController
 
             _availableTargets = new List<Targetable>(10);
 
-            _rb.solverIterations = RigidbodySolverIterations;
+            // _rb.solverIterations = RigidbodySolverIterations;
 
             // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
 
@@ -203,6 +203,19 @@ namespace AMPR.PlayerController
             if (!_useUpdateLoop)
                 return;
 
+            PerformUpdate();
+        }
+
+        private void FixedUpdate()
+        {
+            if (_useUpdateLoop)
+                return;
+
+            PerformUpdate();
+        }
+
+        private void PerformUpdate()
+        {
             UpdateMovement();
 
             if (_jumpCooldownTimer < 0)
@@ -215,22 +228,6 @@ namespace AMPR.PlayerController
         }
 
         private void LateUpdate() => UpdateRotations();
-
-        private void FixedUpdate()
-        {
-            if (_useUpdateLoop)
-                return;
-
-            UpdateMovement();
-
-            if (_jumpCooldownTimer < 0)
-                CheckForGround();
-
-            if (_jumpCooldownTimer > 0)
-                _jumpCooldownTimer -= Time.deltaTime;
-
-            CheckForJump();
-        }
 
         // private void StickToGroundHelper() // TODO: See if this StickToGroundHelper might be useful
         // {
@@ -246,7 +243,7 @@ namespace AMPR.PlayerController
         private void UpdateMovement()
         {
             float deltaTime = Time.deltaTime;
-            Vector2 newMovementVector = _movementInput * (MovementSpeed / 100); // Divide by 100 to allow greater numbers in editor
+            Vector2 newMovementVector = _movementInput * (MovementSpeed /*/ 100*/); // Divide by 100 to allow greater numbers in editor
 
             if (UseAcceleration)
             {
@@ -256,26 +253,22 @@ namespace AMPR.PlayerController
                     _currentAcceleration += deltaTime * Acceleration;
                 if (!_activeInput && _currentAcceleration > 0)
                     _currentAcceleration -= deltaTime * Acceleration;
+
+                Mathf.Clamp((float)_currentAcceleration, 0, 1);
             }
-
-            // if (UseHeadbob)
-            // {
-            //     HeadbobSettings.DoHeadBob(newMovementVector.magnitude);
-            // }
-
-            Mathf.Clamp((float)_currentAcceleration, 0, 1);
 
             Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
 
             if (ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
 
-            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()) * deltaTime);
+            // _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()) * deltaTime);
+            _controller.SimpleMove(newVelocity * deltaTime);
 
             _currentMovementVector = newMovementVector;
         }
 
-        private float SlopeMultiplier() => SlopeCurveModifier.Evaluate(Vector3.Angle(_isGrounded ? _groundNormal : Vector3.up, Vector3.up));
+        // private float SlopeMultiplier() => SlopeCurveModifier.Evaluate(Vector3.Angle(_isGrounded ? _groundNormal : Vector3.up, Vector3.up));
 
         private void CheckForJump()
         {
@@ -292,57 +285,66 @@ namespace AMPR.PlayerController
 #endif
 
             // bool grounded = Physics.SphereCastNonAlloc(transform.position, JumpLandCheckRadius, Vector3.down, _nonAllocBuffer, JumpLandCheckDistance, JumpableLayers) > 0;
-            int hits = Physics.SphereCastNonAlloc(transform.position + JumpCheckOffset,
-                                                  JumpLandCheckRadius,
-                                                  Vector3.down,
-                                                  _nonAllocBuffer,
-                                                  JumpLandCheckDistance,
-                                                  JumpableLayers,
-                                                  QueryTriggerInteraction.Ignore);
+            // int hits = Physics.SphereCastNonAlloc(transform.position + JumpCheckOffset,
+            //                                       JumpLandCheckRadius,
+            //                                       Vector3.down,
+            //                                       _nonAllocBuffer,
+            //                                       JumpLandCheckDistance,
+            //                                       JumpableLayers,
+            //                                       QueryTriggerInteraction.Ignore);
 
-            if (hits == 0)
+            bool controllerGrounded = _controller.isGrounded;
+
+            // if (hits == 0)
+            // {
+            //     _isGrounded = false;
+            //     return;
+            // }
+
+            if (!controllerGrounded)
             {
                 _isGrounded = false;
                 return;
             }
 
-            if (!_isGrounded && hits > 0)
+            // if (!_isGrounded && hits > 0)
+            if (!_isGrounded && controllerGrounded)
                 OnPlayerGrounded();
 
             RaycastHit nearestHit = _nonAllocBuffer[0];
             float nearestDistance = Vector3.Distance(nearestHit.point, transform.position);
 
-            if (hits > 1)
-            {
-                for (int index = 1; index < hits; index++)
-                {
-                    float newDistance = Vector3.Distance(_nonAllocBuffer[index].point, transform.position);
-                    if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance)
-                        continue;
+            // if (hits > 1)
+            // {
+            //     for (int index = 1; index < hits; index++)
+            //     {
+            //         float newDistance = Vector3.Distance(_nonAllocBuffer[index].point, transform.position);
+            //         if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance)
+            //             continue;
 
-                    nearestHit = _nonAllocBuffer[index];
-                    nearestDistance = newDistance;
-                }
-            }
+            //         nearestHit = _nonAllocBuffer[index];
+            //         nearestDistance = newDistance;
+            //     }
+            // }
 
-            _groundNormal = nearestHit.normal;
+            // _groundNormal = nearestHit.normal;
         }
 
         private void PerformJump()
         {
-            _isGrounded = false;
-            _isJumping = true;
-            _jumpCooldownTimer = JumpCooldown;
-            _timesJumped++;
+            // _isGrounded = false;
+            // _isJumping = true;
+            // _jumpCooldownTimer = JumpCooldown;
+            // _timesJumped++;
 
-            Vector3 velocity = _rb.velocity;
-            _rb.velocity = new Vector3(velocity.x, 0, velocity.z);
-            // _currentMovementVector = Vector2.zero;
-            // _currentAcceleration = 0;
+            // Vector3 velocity = _rb.velocity;
+            // _rb.velocity = new Vector3(velocity.x, 0, velocity.z);
+            // // _currentMovementVector = Vector2.zero;
+            // // _currentAcceleration = 0;
 
-            _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
+            // _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
 
-            ONPlayerJump?.Invoke();
+            // ONPlayerJump?.Invoke();
         }
 
         private void UpdateRotations()

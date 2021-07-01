@@ -7,7 +7,7 @@ namespace AMPR.PlayerController
     public class HUDRotator : MonoBehaviour
     {
         public InputHandler InputHandler;
-        public PlayerController PlayerController;
+        public PlayerControllerV2 PlayerController;
         public Transform PlayerCamTransform;
 
         public float LookEffectStrength = 1;
