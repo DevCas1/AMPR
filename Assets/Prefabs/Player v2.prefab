@@ -258,9 +258,9 @@ MonoBehaviour:
   PlayerCamera: {fileID: 1924537829846182630}
   InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
   UpdateManager: {fileID: 0}
-  MovementSpeed: 450
+  MovementSpeed: 200
   UseAcceleration: 1
-  Acceleration: 0.15
+  Acceleration: 0.33
   ClampVelocity: 0
   MaxVelocityMagnitude: 0
   UseSlopeModifier: 0
@@ -311,7 +311,7 @@ MonoBehaviour:
   JumpLandCheckRadius: 0.2
   JumpableLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   JumpCooldown: 0.15
   AmountOfJumps: 2
   RigidbodySolverIterations: 32

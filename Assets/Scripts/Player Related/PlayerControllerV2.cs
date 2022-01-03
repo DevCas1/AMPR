@@ -17,7 +17,6 @@ namespace AMPR.PlayerController
         [Tooltip("Reference to the camera attached to the Player object.")]
         public Camera PlayerCamera;
         public InputHandler InputHandler;
-        public UpdateManager UpdateManager;
 
         [Header("Movement Values")]
 
@@ -176,9 +175,6 @@ namespace AMPR.PlayerController
 
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-
-            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
-            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
 #endif
 
             _nonAllocBuffer = new RaycastHit[10];
@@ -198,23 +194,10 @@ namespace AMPR.PlayerController
 
         private void Update()
         {
-            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
 
-            if (!_useUpdateLoop)
-                return;
-
-            PerformUpdate();
         }
 
         private void FixedUpdate()
-        {
-            if (_useUpdateLoop)
-                return;
-
-            PerformUpdate();
-        }
-
-        private void PerformUpdate()
         {
             UpdateMovement();
 
