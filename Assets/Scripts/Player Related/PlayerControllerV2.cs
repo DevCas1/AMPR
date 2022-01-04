@@ -84,7 +84,6 @@ namespace AMPR.PlayerController
         private Vector2 _movementInput;
         private bool _activeInput;
         private Vector2 _lookInput;
-        // private Queue<Vector2> _movementInputBuffer; // Required if FixedUpdate is not linked to Update
 
         // Movement related
         private Vector2 _currentMovementVector = Vector2.zero;
@@ -247,7 +246,7 @@ namespace AMPR.PlayerController
             if (_ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, _MaxVelocityMagnitude);
 
-            if (_jumpInput)
+            if (_jumpInput) // TODO: continually move player upwards according to some jump curve, then let gravity take over
             {
                 _jumpInput = false;
                 // newVelocity.y += Mathf.Sqrt(_JumpHeight * -3.0f * gravity.magnitude);
