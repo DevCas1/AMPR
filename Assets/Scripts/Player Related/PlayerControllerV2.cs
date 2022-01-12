@@ -185,13 +185,14 @@ namespace AMPR.PlayerController
 
             if (_jumpCooldownTimer > 0)
                 _jumpCooldownTimer -= Time.deltaTime;
-        }
 
-        private void FixedUpdate()
-        {
             CheckForJump();
             UpdateMovement();
         }
+
+        // private void FixedUpdate()
+        // {
+        // }
 
         private void LateUpdate() => UpdateRotations();
 
@@ -226,7 +227,7 @@ namespace AMPR.PlayerController
 
         private void UpdateMovement()
         {
-            float deltaTime = Time.fixedDeltaTime;
+            float deltaTime = Time.deltaTime;
             Vector2 newMovementVector = _movementInput * (_MovementSpeed /*/ 100*/); // Divide by 100 to allow greater numbers in editor
 
             if (_UseAcceleration)
