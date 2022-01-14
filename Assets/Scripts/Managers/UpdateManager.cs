@@ -3,7 +3,7 @@ using DG.Tweening;
 using NaughtyAttributes;
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.Manager
 {
     public class UpdateManager : MonoBehaviour
     {

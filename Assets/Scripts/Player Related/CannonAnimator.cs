@@ -1,8 +1,9 @@
 using System;
+using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.PlayerController
 {
     public class CannonAnimator : MonoBehaviour // TODO: Implement local rotation over time by high rate of fire
     {
@@ -58,7 +59,7 @@ namespace AMPR
             PlayerController.ONPlayerJump += OnPlayerJump;
             PlayerController.ONPlayerLand += OnPlayerLand;
 
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, CannonAnimator>(PlayerController, this, gameObject);
 
             _startPos = LocalPos;

@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Sjouke;
+using AMPR.Manager;
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.Weapon
 {
     public class PlayerWeapon : MonoBehaviour
     {

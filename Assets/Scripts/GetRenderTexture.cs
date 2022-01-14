@@ -1,6 +1,6 @@
 using System;
+using AMPR.ExtensionMethod;
 using UnityEngine;
-using Sjouke.ExtensionMethods;
 
 namespace AMPR
 {

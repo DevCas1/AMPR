@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AMPR
+namespace AMPR.PlayerController
 {
     public abstract class Targetable : MonoBehaviour, ITargetable
     {
