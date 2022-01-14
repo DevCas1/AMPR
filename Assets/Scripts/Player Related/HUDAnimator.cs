@@ -8,7 +8,7 @@ namespace AMPR.PlayerController
     {
         [Header("References")]
         public InputHandler InputHandler;
-        public PlayerControllerV2 PlayerController;
+        public PlayerController PlayerController;
         public Transform PlayerCamTransform;
 
         [Header("Rotation settings")]

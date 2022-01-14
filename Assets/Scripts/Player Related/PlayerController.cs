@@ -5,72 +5,66 @@ using UnityEngine;
 
 namespace AMPR.PlayerController
 {
-    // [RequireComponent(typeof(Rigidbody))]
-
+    [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
     {
         private enum LockOnStatus { None, Transform, Position }
+        private static int DEFAULT_NON_ALLOC_SIZE = 10;
+        private static int DEFAULT_TARGETABLE_SIZE = 10;
 
-        ///// Public Unity initialized \\\\\
+        /// Public Unity initialized \\\\\
         [Header("References")]
 
         [Tooltip("Reference to the camera attached to the Player object.")]
         public Camera PlayerCamera;
         public InputHandler InputHandler;
-        public UpdateManager UpdateManager;
 
         [Header("Movement Values")]
 
         [SerializeField, Tooltip("The speed at which the player moves.")]
-        private float MovementSpeed = 450;
+        private float _MovementSpeed = 300;
         [SerializeField]
-        private bool UseAcceleration = true;
-        [SerializeField, Tooltip("Rate of acceleration and deceleration when the player moves."), /*Min(0),*/ Range(0, 1), EnableIf(nameof(UseAcceleration))]
-        private float Acceleration = 0.15f;
+        private bool _UseAcceleration = true;
+        [SerializeField, Tooltip("Rate of acceleration and deceleration when the player moves."), /*Min(0),*/ Range(0, 1), EnableIf(nameof(_UseAcceleration))]
+        private float _Acceleration = .33f;
         [SerializeField, Tooltip("Whether to clamp the player's maximum velocity to a specific value.")]
-        private bool ClampVelocity;
-        [SerializeField, Tooltip("The max magnitude for player movement."), EnableIf(nameof(ClampVelocity))]
-        private float MaxVelocityMagnitude;
-        [SerializeField]
-        private bool UseSlopeModifier;
-        [SerializeField, EnableIf(nameof(UseSlopeModifier))]
-        private AnimationCurve SlopeCurveModifier = new AnimationCurve(new Keyframe(-90.0f, 1.0f), new Keyframe(0.0f, 1.0f), new Keyframe(90.0f, 0.0f));
+        private bool _ClampVelocity;
+        [SerializeField, Tooltip("The max magnitude for player movement."), EnableIf(nameof(_ClampVelocity))]
+        private float _MaxVelocityMagnitude;
 
         [Header("Camera Settings")]
 
         [SerializeField, Tooltip("The rate at which the camera will turn relative to the input.")]
-        private float TurnSpeed = 16;
+        private float _TurnSpeed = 16;
         [SerializeField, Tooltip("Inverse the X axis of camera input.")]
-        private bool InverseX;
+        private bool _InvertX;
         [SerializeField, Tooltip("Inverse the Y axis of camera input.")]
-        private bool InverseY;
+        private bool _InvertY;
         [SerializeField]
-        private bool UseRotationSmoothing;
-        [SerializeField, Tooltip("The amount of smoothing used while rotating the player camera."), Min(0), EnableIf(nameof(UseRotationSmoothing))]
-        private float SmoothTurnSpeed;
+        private bool _UseRotationSmoothing;
+        [SerializeField, Tooltip("The amount of smoothing used while rotating the player camera."), Min(0), EnableIf(nameof(_UseRotationSmoothing))]
+        private float _SmoothTurnSpeed;
         [SerializeField, Tooltip("The highest angle at which the player can look up in degrees. (270 is straight upward)"), Range(270, 359)]
-        private int MaxCameraAngle = 270;
+        private int _MaxCameraAngle = 270;
         [SerializeField, Tooltip("The lowest angle at which the player can look down in degrees. (90 is straight downard)"), Range(0, 90)]
-        private int MinCameraAngle = 90;
+        private int _MinCameraAngle = 90;
 
         [Header("Jump Settings")]
 
         [SerializeField, Tooltip("The amount of force applied to the player when performing a jump.")]
-        private float JumpForce = 8;
-        [SerializeField, Tooltip("The ForceMode used for the jump.")]
-        private ForceMode JumpForceMode = ForceMode.VelocityChange;
+        private float _JumpForce = 8;
         [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
-        private float JumpLandCheckDistance = 0.15f;
+        private float _JumpCheckDistance = 0.15f;
         [SerializeField]
-        private Vector3 JumpCheckOffset;
+        private Vector3 _JumpCheckOffset;
         [SerializeField, Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
-        private float JumpLandCheckRadius = 0.2f;
+        private float _JumpCheckRadius = 0.2f;
         [SerializeField, Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
-        private LayerMask JumpableLayers;
-        [SerializeField, Tooltip("The amount of time repeated jump inputs will be ignored, after a grounded jump has been performed.")]
-        private float JumpCooldown = 0.15f;
+        private LayerMask _JumpableLayers;
+        [SerializeField, Tooltip("The amount of time repeated jump inputs will be ignored, after a jump has been performed.")]
+        private float _JumpCooldown = 0.15f;
         [SerializeField, Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
-        private int AmountOfJumps = 2;
+        private int _AmountOfJumps = 2;
 
         public Vector2 Torque => _rotationVector;
 
@@ -80,23 +74,20 @@ namespace AMPR.PlayerController
         public event PlayerJumpEvent ONPlayerLand;
         public event PlayerLockEvent ONPlayerLock;
 
-        [Header("Advanced"), SerializeField]
-        private ushort RigidbodySolverIterations = 32;
-
         private Transform _playerCamTransform;
-        private Rigidbody _rb;
-        private CapsuleCollider _collider;
-        private bool _useUpdateLoop;
+        private CharacterController _controller;
 
         // Input related
         private Vector2 _movementInput;
+        private Vector2 _lastMovementInput;
         private bool _activeInput;
         private Vector2 _lookInput;
-        // private Queue<Vector2> _movementInputBuffer; // Required if FixedUpdate is not linked to Update
 
         // Movement related
-        private Vector2 _currentMovementVector;
+        private Vector3 _playerVelocity = Vector3.zero;
         private double _currentAcceleration;
+        private CollisionFlags _collisionFlags;
+        private Vector3 _gravity;
 
         // Rotation related
         private Vector2 _rotationVector;
@@ -104,12 +95,9 @@ namespace AMPR.PlayerController
         // Jump related
         private bool _jumpInput;
         private bool _isJumping;
-        private bool _isGrounded;
-        private Vector3 _groundNormal;
+        private bool _playerGrounded;
         private double _jumpCooldownTimer;
         private int _timesJumped;
-
-        // Jump check related
         private RaycastHit[] _nonAllocBuffer;
 
         // Look lock related
@@ -121,13 +109,9 @@ namespace AMPR.PlayerController
 
         private void Reset()
         {
-            _rb = GetComponent<Rigidbody>();
+            _controller = GetComponent<CharacterController>();
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
-#endif
-            _collider = GetComponentInChildren<CapsuleCollider>();
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerController>(_controller, this, gameObject);
 #endif
         }
 
@@ -149,41 +133,15 @@ namespace AMPR.PlayerController
 
         private void Start()
         {
-            if (_rb == null)
-                _rb = GetComponent<Rigidbody>();
+            if (_controller == null)
+                _controller = GetComponent<CharacterController>();
 
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Rigidbody, PlayerController>(_rb, this, gameObject);
-#endif
-
-            if (InputHandler == null)
-                InputHandler = FindObjectOfType<InputHandler>();
-
-            // #if UNITY_EDITOR
-            //             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
-            // #endif
-
-            if (_collider == null)
-                _collider = GetComponentInChildren<CapsuleCollider>();
-
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
-#endif
             InitializeControls();
 
+            _gravity = Physics.gravity;
             _playerCamTransform = PlayerCamera.transform;
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-#endif
-            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
-
-            _nonAllocBuffer = new RaycastHit[10];
-
-            _availableTargets = new List<Targetable>(10);
-
-            _rb.solverIterations = RigidbodySolverIterations;
-
-            // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
+            _nonAllocBuffer = new RaycastHit[DEFAULT_NON_ALLOC_SIZE];
+            _availableTargets = new List<Targetable>(DEFAULT_TARGETABLE_SIZE);
 
             InputHandler.Controls.Player.Enable();
         }
@@ -194,151 +152,11 @@ namespace AMPR.PlayerController
 
         private void Update()
         {
-            _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
-
-            if (!_useUpdateLoop)
-                return;
-
-            UpdateMovement();
-
-            if (_jumpCooldownTimer < 0)
-                CheckForGround();
-
             if (_jumpCooldownTimer > 0)
                 _jumpCooldownTimer -= Time.deltaTime;
 
-            CheckForJump();
-        }
-
-        private void LateUpdate() => UpdateRotations();
-
-        private void FixedUpdate()
-        {
-            if (_useUpdateLoop)
-                return;
-
+            UpdateRotations();
             UpdateMovement();
-
-            if (_jumpCooldownTimer < 0)
-                CheckForGround();
-
-            if (_jumpCooldownTimer > 0)
-                _jumpCooldownTimer -= Time.deltaTime;
-
-            CheckForJump();
-        }
-
-        // private void StickToGroundHelper() // TODO: See if this StickToGroundHelper might be useful
-        // {
-        //     if (!Physics.SphereCast(transform.position, m_Capsule.radius * (1.0f - advancedSettings.shellOffset), Vector3.down, out RaycastHit hitInfo, ((m_Capsule.height / 2f) - m_Capsule.radius) + advancedSettings.stickToGroundHelperDistance, Physics.AllLayers, QueryTriggerInteraction.Ignore))
-        //         return;
-        //
-        //     if (Mathf.Abs(Vector3.Angle(hitInfo.normal, Vector3.up)) > 85f)
-        //         return;
-        //
-        //     m_RigidBody.velocity = Vector3.ProjectOnPlane(m_RigidBody.velocity, hitInfo.normal);
-        // }
-
-        private void UpdateMovement()
-        {
-            float deltaTime = Time.deltaTime;
-            Vector2 newMovementVector = _movementInput * (MovementSpeed / 100); // Divide by 100 to allow greater numbers in editor
-
-            if (UseAcceleration)
-            {
-                newMovementVector = Vector2.Lerp(_currentMovementVector, newMovementVector, Mathf.SmoothStep(0, 1, Acceleration));
-
-                if (_activeInput && _currentAcceleration < 1)
-                    _currentAcceleration += deltaTime * Acceleration;
-                if (!_activeInput && _currentAcceleration > 0)
-                    _currentAcceleration -= deltaTime * Acceleration;
-            }
-
-            // if (UseHeadbob)
-            // {
-            //     HeadbobSettings.DoHeadBob(newMovementVector.magnitude);
-            // }
-
-            Mathf.Clamp((float)_currentAcceleration, 0, 1);
-
-            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
-
-            if (ClampVelocity)
-                Vector3.ClampMagnitude(newVelocity, MaxVelocityMagnitude);
-
-            _rb.MovePosition(_rb.position + (newVelocity * SlopeMultiplier()) * deltaTime);
-
-            _currentMovementVector = newMovementVector;
-        }
-
-        private float SlopeMultiplier() => SlopeCurveModifier.Evaluate(Vector3.Angle(_isGrounded ? _groundNormal : Vector3.up, Vector3.up));
-
-        private void CheckForJump()
-        {
-            if (_jumpInput && _jumpCooldownTimer <= 0 && (!_isJumping || _isJumping && _timesJumped < AmountOfJumps))
-                PerformJump();
-
-            _jumpInput = false;
-        }
-
-        private void CheckForGround()
-        {
-#if UNITY_EDITOR
-            // Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
-#endif
-
-            // bool grounded = Physics.SphereCastNonAlloc(transform.position, JumpLandCheckRadius, Vector3.down, _nonAllocBuffer, JumpLandCheckDistance, JumpableLayers) > 0;
-            int hits = Physics.SphereCastNonAlloc(transform.position + JumpCheckOffset,
-                                                  JumpLandCheckRadius,
-                                                  Vector3.down,
-                                                  _nonAllocBuffer,
-                                                  JumpLandCheckDistance,
-                                                  JumpableLayers,
-                                                  QueryTriggerInteraction.Ignore);
-
-            if (hits == 0)
-            {
-                _isGrounded = false;
-                return;
-            }
-
-            if (!_isGrounded && hits > 0)
-                OnPlayerGrounded();
-
-            RaycastHit nearestHit = _nonAllocBuffer[0];
-            float nearestDistance = Vector3.Distance(nearestHit.point, transform.position);
-
-            if (hits > 1)
-            {
-                for (int index = 1; index < hits; index++)
-                {
-                    float newDistance = Vector3.Distance(_nonAllocBuffer[index].point, transform.position);
-                    if (Vector3.Distance(_nonAllocBuffer[index].point, transform.position) > nearestDistance)
-                        continue;
-
-                    nearestHit = _nonAllocBuffer[index];
-                    nearestDistance = newDistance;
-                }
-            }
-
-            _groundNormal = nearestHit.normal;
-        }
-
-        private void PerformJump()
-        {
-            _isGrounded = false;
-            _isJumping = true;
-            _jumpCooldownTimer = JumpCooldown;
-            _timesJumped++;
-
-            Vector3 velocity = _rb.velocity;
-            _rb.velocity = new Vector3(velocity.x, 0, velocity.z);
-            // _currentMovementVector = Vector2.zero;
-            // _currentAcceleration = 0;
-
-            _rb.AddForce(Vector3.up * JumpForce, JumpForceMode);
-
-            ONPlayerJump?.Invoke();
         }
 
         private void UpdateRotations()
@@ -347,11 +165,11 @@ namespace AMPR.PlayerController
 
             if (_lockOnStatus == LockOnStatus.None)
             {
-                Vector2 newLookVector = _lookInput * (TurnSpeed * Time.deltaTime);
+                Vector2 newLookVector = _lookInput * (_TurnSpeed * Time.deltaTime);
 
-                newRotation = new Vector2(transform.rotation.eulerAngles.y + (InverseX ? -newLookVector.x : newLookVector.x),
-                                          _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y));
-                // newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (InverseY ? -newLookVector.y : newLookVector.y)) * deltaTime;
+                newRotation = new Vector2(transform.rotation.eulerAngles.y + ((_InvertX ? -newLookVector.x : newLookVector.x)),
+                                          _playerCamTransform.localRotation.eulerAngles.x - (_InvertY ? -newLookVector.y : newLookVector.y));
+                // newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (_InvertY ? -newLookVector.y : newLookVector.y)) * deltaTime;
             }
             else
             {
@@ -363,24 +181,92 @@ namespace AMPR.PlayerController
                 // Debug.DrawRay(targetDir, -targetDir, Color.magenta);
             }
 
-            if (newRotation.y < 180 && newRotation.y > MinCameraAngle)
+            if (newRotation.y < 180 && newRotation.y > _MinCameraAngle)
             {
-                newRotation.y = MinCameraAngle;
+                newRotation.y = _MinCameraAngle;
                 RemoveLockOn();
             }
 
-            if (newRotation.y > 180 && newRotation.y < MaxCameraAngle)
+            if (newRotation.y > 180 && newRotation.y < _MaxCameraAngle)
             {
-                newRotation.y = MaxCameraAngle;
+                newRotation.y = _MaxCameraAngle;
                 RemoveLockOn();
             }
-
-            // _rotationVector = new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
 
             transform.rotation = Quaternion.Euler(0, newRotation.x, 0);
             _playerCamTransform.localRotation = Quaternion.Euler(newRotation.y, 0, 0);
+        }
 
-            // _rotationVector -= new Vector2(_playerCamTransform.localEulerAngles.x, transform.eulerAngles.y);
+        private void UpdateMovement()
+        {
+            float deltaTime = Time.deltaTime;
+            _playerGrounded = CheckForGround();
+
+            if (_playerGrounded && _playerVelocity.y < 0)
+                _playerVelocity.y = 0f;
+
+            if (_jumpInput && CanPlayerJump())
+                PerformJump();
+
+            Vector3 forwardMovement;
+
+            if (_UseAcceleration)
+            {
+                Vector3 moveInput = Vector3.Lerp(_lastMovementInput, _movementInput, Mathf.SmoothStep(0, 1, _Acceleration));
+
+                if (_activeInput && _currentAcceleration < 1)
+                    _currentAcceleration += deltaTime * _Acceleration;
+                if (!_activeInput && _currentAcceleration > 0)
+                    _currentAcceleration -= deltaTime * _Acceleration;
+
+                Mathf.Clamp((float)_currentAcceleration, 0, 1);
+                _lastMovementInput = moveInput;
+                forwardMovement = transform.TransformDirection(new Vector3(moveInput.x, 0, moveInput.y));
+            }
+            else
+                forwardMovement = transform.TransformDirection(new Vector3(_movementInput.x, 0, _movementInput.y));
+
+            _playerVelocity += _gravity * deltaTime;
+
+            _collisionFlags = _controller.Move((forwardMovement * _MovementSpeed + _playerVelocity) * deltaTime);
+        }
+
+        private bool CheckForGround()
+        {
+#if UNITY_EDITOR
+            // Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
+#endif
+
+            int hits = Physics.SphereCastNonAlloc(transform.position + _JumpCheckOffset,
+                                                  _JumpCheckRadius,
+                                                  Vector3.down,
+                                                  _nonAllocBuffer,
+                                                  _JumpCheckDistance,
+                                                  _JumpableLayers,
+                                                  QueryTriggerInteraction.Ignore);
+
+            if (hits == 0)
+            {
+                _playerGrounded = false;
+                return false;
+            }
+
+            if (!_playerGrounded && hits > 0)
+                OnPlayerGrounded();
+
+            return true;
+        }
+
+        private bool CanPlayerJump() => _playerGrounded || (_jumpCooldownTimer <= 0 && _timesJumped < _AmountOfJumps);
+
+        private void PerformJump()
+        {
+            _playerVelocity.y = _JumpForce;
+            _jumpInput = false;
+            _jumpCooldownTimer = _JumpCooldown;
+            _timesJumped++;
+
+            ONPlayerJump?.Invoke();
         }
 
         public void LookAt(Transform lockTransform)
@@ -416,9 +302,9 @@ namespace AMPR.PlayerController
 
         private void OnPlayerGrounded()
         {
-            _isGrounded = true;
-            _isJumping = false;
+            _playerGrounded = true;
             _timesJumped = 0;
+
             ONPlayerLand?.Invoke();
         }
 
