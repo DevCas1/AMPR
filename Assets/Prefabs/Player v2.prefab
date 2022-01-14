@@ -524,7 +524,7 @@ MonoBehaviour:
   BobMagnitudeMultiplier: {x: 0.01, y: 0.033}
   BobSpeed: 6
   BobSmoothSpeed: 10
-  LandPunchForce: 0.05
+  LandPunchForce: 0.03
 --- !u!1 &8671706102307113655
 GameObject:
   m_ObjectHideFlags: 0

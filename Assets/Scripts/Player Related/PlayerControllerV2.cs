@@ -264,7 +264,7 @@ namespace AMPR.PlayerController
             _jumpCooldownTimer = _JumpCooldown;
             _timesJumped++;
 
-            // ONPlayerJump?.Invoke();
+            ONPlayerJump?.Invoke();
         }
 
         public void LookAt(Transform lockTransform)
@@ -303,7 +303,7 @@ namespace AMPR.PlayerController
             _playerGrounded = true;
             _timesJumped = 0;
 
-            // ONPlayerLand?.Invoke();
+            ONPlayerLand?.Invoke();
         }
 
         private void OnPlayerLockOn()
