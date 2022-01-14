@@ -176,10 +176,6 @@ namespace AMPR.PlayerController
             DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
 #endif
             _useUpdateLoop = UpdateManager.UpdateLoop == UpdateManager.UpdateType.Update;
-#if UNITY_EDITOR
-            // DebugUtility.HandleErrorIfNullGetComponent<UpdateManager, PlayerController>(UpdateManager, this, gameObject);
-            DebugUtility.HandleErrorIfNullFindObject<UpdateManager, PlayerController>(gameObject, this);
-#endif
 
             _nonAllocBuffer = new RaycastHit[10];
 

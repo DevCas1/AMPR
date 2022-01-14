@@ -50,10 +50,8 @@ namespace AMPR.PlayerController
 
         [Header("Jump Settings")]
 
-        [SerializeField]
-        private float _JumpHeight;
-        // [SerializeField, Tooltip("The amount of force applied to the player when performing a jump.")]
-        // private float _JumpForce = 8;
+        [SerializeField, Tooltip("The amount of force applied to the player when performing a jump.")]
+        private float _JumpForce = 8;
         // [SerializeField, Tooltip("The ForceMode used for the jump.")]
         // private ForceMode _JumpForceMode = ForceMode.VelocityChange;
         // [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
@@ -114,10 +112,6 @@ namespace AMPR.PlayerController
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerController>(_controller, this, gameObject);
 #endif
-            //             _collider = GetComponentInChildren<CapsuleCollider>();
-            // #if UNITY_EDITOR
-            //             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
-            // #endif
         }
 
         private void InitializeControls()
@@ -190,15 +184,12 @@ namespace AMPR.PlayerController
             UpdateMovement();
         }
 
-        // private void FixedUpdate()
-        // {
-        // }
-
         private void LateUpdate() => UpdateRotations();
 
         private void CheckForGround()
         {
             bool controllerGrounded = _controller.isGrounded;
+            Debug.Log(controllerGrounded);
 
             if (!controllerGrounded)
             {
@@ -227,6 +218,11 @@ namespace AMPR.PlayerController
 
         private void UpdateMovement()
         {
+            // if (Mathf.Abs(_movementInput.x) < 0.01 && Mathf.Abs(_movementInput.y) < 0.01)
+            // {
+            //     return;
+            // }
+
             float deltaTime = Time.deltaTime;
             Vector2 newMovementVector = _movementInput * (_MovementSpeed /*/ 100*/); // Divide by 100 to allow greater numbers in editor
 
@@ -247,15 +243,14 @@ namespace AMPR.PlayerController
             if (_ClampVelocity)
                 Vector3.ClampMagnitude(newVelocity, _MaxVelocityMagnitude);
 
-            if (_jumpInput) // TODO: continually move player upwards according to some jump curve, then let gravity take over
+            if (_jumpInput)
             {
                 _jumpInput = false;
-                // newVelocity.y += Mathf.Sqrt(_JumpHeight * -3.0f * gravity.magnitude);
-                // newVelocity.y += Mathf.Sqrt(_JumpHeight * gravity.magnitude);
+                newVelocity.y += _JumpForce;
             }
 
             if (!_controller.isGrounded)
-                newVelocity += Physics.gravity;
+                newVelocity += Physics.gravity * deltaTime;
 
             _collisionFlags = _controller.Move(newVelocity * deltaTime);
 
