@@ -6,10 +6,11 @@ using UnityEngine;
 namespace AMPR.PlayerController
 {
     [RequireComponent(typeof(CharacterController))]
-
     public class PlayerControllerV2 : MonoBehaviour
     {
         private enum LockOnStatus { None, Transform, Position }
+        private static int DEFAULT_NON_ALLOC_SIZE = 10;
+        private static int DEFAULT_TARGETABLE_SIZE = 10;
 
         /// Public Unity initialized \\\\\
         [Header("References")]
@@ -52,16 +53,14 @@ namespace AMPR.PlayerController
 
         [SerializeField, Tooltip("The amount of force applied to the player when performing a jump.")]
         private float _JumpForce = 8;
-        // [SerializeField, Tooltip("The ForceMode used for the jump.")]
-        // private ForceMode _JumpForceMode = ForceMode.VelocityChange;
-        // [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
-        // private float _JumpLandCheckDistance = 0.15f;
-        // [SerializeField]
-        // private Vector3 _JumpCheckOffset;
-        // [SerializeField, Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
-        // private float _JumpLandCheckRadius = 0.2f;
-        // [SerializeField, Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
-        // private LayerMask _JumpableLayers;
+        [SerializeField, Tooltip("The distance from the player object's point of center at which will be checked for ground. \nSetting this too small might result in undesired negatives, while too high might feel like you can jump without touching any ground.")]
+        private float _JumpCheckDistance = 0.15f;
+        [SerializeField]
+        private Vector3 _JumpCheckOffset;
+        [SerializeField, Tooltip("The radius of the jump check.\nSetting this too small might result in irregular positives when trying to jump on narrow surfaces.")]
+        private float _JumpCheckRadius = 0.2f;
+        [SerializeField, Tooltip("The layers on which the player can jump.")] // ReSharper disable once IdentifierTypo
+        private LayerMask _JumpableLayers;
         [SerializeField, Tooltip("The amount of time repeated jump inputs will be ignored, after a jump has been performed.")]
         private float _JumpCooldown = 0.15f;
         [SerializeField, Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
@@ -84,9 +83,10 @@ namespace AMPR.PlayerController
         private Vector2 _lookInput;
 
         // Movement related
-        private Vector2 _currentMovementVector = Vector2.zero;
+        private Vector3 _playerVelocity = Vector3.zero;
         private double _currentAcceleration;
         private CollisionFlags _collisionFlags;
+        private Vector3 _gravity;
 
         // Rotation related
         private Vector2 _rotationVector;
@@ -94,10 +94,10 @@ namespace AMPR.PlayerController
         // Jump related
         private bool _jumpInput;
         private bool _isJumping;
-        private bool _isGrounded;
-        // private Vector3 _groundNormal;
+        private bool _playerGrounded;
         private double _jumpCooldownTimer;
         private int _timesJumped;
+        private RaycastHit[] _nonAllocBuffer;
 
         // Look lock related
         private LockOnStatus _lockOnStatus;
@@ -135,35 +135,12 @@ namespace AMPR.PlayerController
             if (_controller == null)
                 _controller = GetComponent<CharacterController>();
 
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<CharacterController, PlayerController>(_controller, this, gameObject);
-#endif
-
-            if (InputHandler == null)
-                InputHandler = FindObjectOfType<InputHandler>();
-
-            // #if UNITY_EDITOR
-            //             DebugUtility.HandleErrorIfNullGetComponent<InputHandler, PlayerController>(InputHandler, this, gameObject);
-            // #endif
-
-            //             if (_collider == null)
-            //                 _collider = GetComponentInChildren<CapsuleCollider>();
-
-            // #if UNITY_EDITOR
-            //             DebugUtility.HandleErrorIfNullGetComponent<CapsuleCollider, PlayerController>(_collider, this, gameObject);
-            // #endif
-
             InitializeControls();
 
+            _gravity = Physics.gravity;
             _playerCamTransform = PlayerCamera.transform;
-
-#if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullGetComponent<Transform, PlayerController>(_playerCamTransform, this, gameObject);
-#endif
-
-            _availableTargets = new List<Targetable>(10);
-
-            // HeadbobSettings.Setup(PlayerCamera, HeadBobBaseInterval); // TODO: Implement HeadBob
+            _nonAllocBuffer = new RaycastHit[DEFAULT_NON_ALLOC_SIZE];
+            _availableTargets = new List<Targetable>(DEFAULT_TARGETABLE_SIZE);
 
             InputHandler.Controls.Player.Enable();
         }
@@ -174,87 +151,11 @@ namespace AMPR.PlayerController
 
         private void Update()
         {
-            if (_jumpCooldownTimer < 0)
-                CheckForGround();
-
             if (_jumpCooldownTimer > 0)
                 _jumpCooldownTimer -= Time.deltaTime;
 
-            CheckForJump();
+            UpdateRotations();
             UpdateMovement();
-        }
-
-        private void LateUpdate() => UpdateRotations();
-
-        private void CheckForGround()
-        {
-            bool controllerGrounded = _controller.isGrounded;
-            Debug.Log(controllerGrounded);
-
-            if (!controllerGrounded)
-            {
-                _isGrounded = false;
-                return;
-            }
-
-            if (!_isGrounded && controllerGrounded)
-                OnPlayerGrounded();
-        }
-
-        private void CheckForJump()
-        {
-            if (_jumpInput && _jumpCooldownTimer <= 0 && (!_isJumping || _isJumping && _timesJumped < _AmountOfJumps))
-                PerformJump();
-        }
-
-        private void PerformJump()
-        {
-            _isJumping = true;
-            _jumpCooldownTimer = _JumpCooldown;
-            _timesJumped++;
-
-            ONPlayerJump?.Invoke();
-        }
-
-        private void UpdateMovement()
-        {
-            // if (Mathf.Abs(_movementInput.x) < 0.01 && Mathf.Abs(_movementInput.y) < 0.01)
-            // {
-            //     return;
-            // }
-
-            float deltaTime = Time.deltaTime;
-            Vector2 newMovementVector = _movementInput * (_MovementSpeed /*/ 100*/); // Divide by 100 to allow greater numbers in editor
-
-            if (_UseAcceleration)
-            {
-                newMovementVector = Vector2.Lerp(_currentMovementVector, newMovementVector, Mathf.SmoothStep(0, 1, _Acceleration));
-
-                if (_activeInput && _currentAcceleration < 1)
-                    _currentAcceleration += deltaTime * _Acceleration;
-                if (!_activeInput && _currentAcceleration > 0)
-                    _currentAcceleration -= deltaTime * _Acceleration;
-
-                Mathf.Clamp((float)_currentAcceleration, 0, 1);
-            }
-
-            Vector3 newVelocity = transform.TransformDirection(new Vector3(newMovementVector.x, 0, newMovementVector.y));
-
-            if (_ClampVelocity)
-                Vector3.ClampMagnitude(newVelocity, _MaxVelocityMagnitude);
-
-            if (_jumpInput)
-            {
-                _jumpInput = false;
-                newVelocity.y += _JumpForce;
-            }
-
-            if (!_controller.isGrounded)
-                newVelocity += Physics.gravity * deltaTime;
-
-            _collisionFlags = _controller.Move(newVelocity * deltaTime);
-
-            _currentMovementVector = newMovementVector;
         }
 
         private void UpdateRotations()
@@ -295,6 +196,77 @@ namespace AMPR.PlayerController
             _playerCamTransform.localRotation = Quaternion.Euler(newRotation.y, 0, 0);
         }
 
+        private void UpdateMovement()
+        {
+            float deltaTime = Time.deltaTime;
+            _playerGrounded = CheckForGround();
+
+            if (_playerGrounded && _playerVelocity.y < 0)
+            {
+                _playerVelocity.y = 0f;
+            }
+
+            if (_jumpInput && CanPlayerJump())
+            {
+                _playerVelocity.y = _JumpForce;
+                PerformJump();
+            }
+
+            // if (_UseAcceleration)
+            // {
+            //     newMovementVector = Vector2.Lerp(_playerVelocity, newMovementVector, Mathf.SmoothStep(0, 1, _Acceleration));
+
+            //     if (_activeInput && _currentAcceleration < 1)
+            //         _currentAcceleration += deltaTime * _Acceleration;
+            //     if (!_activeInput && _currentAcceleration > 0)
+            //         _currentAcceleration -= deltaTime * _Acceleration;
+
+            //     Mathf.Clamp((float)_currentAcceleration, 0, 1);
+            // }
+
+            _playerVelocity += _gravity * deltaTime;
+
+            Vector3 forwardMovement = transform.TransformDirection(new Vector3(_movementInput.x, 0, _movementInput.y));
+            _collisionFlags = _controller.Move((forwardMovement * _MovementSpeed + _playerVelocity) * deltaTime);
+        }
+
+        private bool CheckForGround()
+        {
+#if UNITY_EDITOR
+            // Debug.DrawRay(_rb.position + new Vector3(0, JumpCheckOffset, 0), Vector3.down * JumpLandCheckDistance, Color.magenta, 1);
+#endif
+
+            int hits = Physics.SphereCastNonAlloc(transform.position + _JumpCheckOffset,
+                                                  _JumpCheckRadius,
+                                                  Vector3.down,
+                                                  _nonAllocBuffer,
+                                                  _JumpCheckDistance,
+                                                  _JumpableLayers,
+                                                  QueryTriggerInteraction.Ignore);
+
+            if (hits == 0)
+            {
+                _playerGrounded = false;
+                return false;
+            }
+
+            if (!_playerGrounded && hits > 0)
+                OnPlayerGrounded();
+
+            return true;
+        }
+
+        private bool CanPlayerJump() => _playerGrounded || (_jumpCooldownTimer <= 0 && _timesJumped < _AmountOfJumps);
+
+        private void PerformJump()
+        {
+            _jumpInput = false;
+            _jumpCooldownTimer = _JumpCooldown;
+            _timesJumped++;
+
+            // ONPlayerJump?.Invoke();
+        }
+
         public void LookAt(Transform lockTransform)
         {
             _lockOnStatus = LockOnStatus.Transform;
@@ -328,10 +300,10 @@ namespace AMPR.PlayerController
 
         private void OnPlayerGrounded()
         {
-            _isGrounded = true;
-            _isJumping = false;
+            _playerGrounded = true;
             _timesJumped = 0;
-            ONPlayerLand?.Invoke();
+
+            // ONPlayerLand?.Invoke();
         }
 
         private void OnPlayerLockOn()
