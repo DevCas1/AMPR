@@ -4,17 +4,27 @@ using UnityEngine;
 
 namespace AMPR.PlayerController
 {
-    public class HUDRotator : MonoBehaviour
+    public class HUDAnimator : MonoBehaviour
     {
+        [Header("References")]
         public InputHandler InputHandler;
         public PlayerControllerV2 PlayerController;
         public Transform PlayerCamTransform;
 
+        [Header("Rotation settings")]
         public float LookEffectStrength = 1;
         public Vector2 MaxLookEffect = new Vector2(1, 5);
         public float JumpEffectStrength = 2;
         public float JumpEffectDuration = 0.2f;
         public float SmoothSpeed = 5;
+
+        [Header("Shake settings"), Min(0)]
+        public int AmountOfShakes;
+        public float ShakeDuration;
+        public float ShakeStrength;
+        public int ShakeVibrato;
+        [Range(0, 90)]
+        public int ShakeRandomness;
 
         private bool _activeInput;
         private Vector2 _lookInput;
@@ -27,18 +37,21 @@ namespace AMPR.PlayerController
         private void Start()
         {
 #if UNITY_EDITOR
-            DebugUtility.HandleErrorIfNullFindObject<Transform, HUDRotator>(gameObject, this);
-            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDRotator>(InputHandler, this, gameObject);
-            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDRotator>(PlayerController, this, gameObject);
+            DebugUtility.HandleErrorIfNullFindObject<Transform, HUDAnimator>(gameObject, this);
+            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDAnimator>(InputHandler, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDAnimator>(PlayerController, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled += context => OnLookInput(false, Vector2.zero);
 
             PlayerController.ONPlayerJump += OnPlayerJump;
+            PlayerController.ONPlayerLand += OnPlayerLand;
             PlayerController.ONPlayerLock += OnPlayerLock;
         }
 
-        private void Update()
+        private void Update() => RotateHelmet();
+
+        private void RotateHelmet()
         {
             Vector3 displacement = Vector3.Lerp(_oldLookInput,                                          // TODO: Replace input-based displacement with position-based difference
                                                 _playerLock ? Vector3.zero : new Vector3(-_lookInput.y,
@@ -85,6 +98,12 @@ namespace AMPR.PlayerController
         {
             _currentAcceleration = 0f;
             transform.DOBlendableLocalRotateBy(new Vector3(-JumpEffectStrength, 0, 0), JumpEffectDuration);
+        }
+
+        private void OnPlayerLand()
+        {
+            _currentAcceleration = 0f;
+            transform.DOBlendableLocalRotateBy(new Vector3(-JumpEffectStrength / 2, 0, 0), JumpEffectDuration);
         }
 
         private void OnPlayerLock(bool state)
