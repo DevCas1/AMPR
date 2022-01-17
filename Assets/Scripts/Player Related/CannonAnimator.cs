@@ -3,7 +3,7 @@ using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR.PlayerController
+namespace AMPR.Controls
 {
     public class CannonAnimator : MonoBehaviour // TODO: Implement local rotation over time by high rate of fire
     {
@@ -21,7 +21,7 @@ namespace AMPR.PlayerController
 
         [Header("Cannon bob Related")]
         [SerializeField]
-        private Vector2 BobMagnitudeMultiplier = new Vector2(0.01f, 0.033f);
+        private Vector2 BobMagnitudeMultiplier = new(0.01f, 0.033f);
         [SerializeField]
         private float BobSpeed = 6;
         [SerializeField]
@@ -56,8 +56,8 @@ namespace AMPR.PlayerController
             InputHandler.Controls.Player.Move.performed += context => OnPlayerMove(context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Move.canceled += context => OnPlayerStopMoving();
 
-            PlayerController.ONPlayerJump += OnPlayerJump;
-            PlayerController.ONPlayerLand += OnPlayerLand;
+            PlayerController.OnPlayerJump += OnPlayerJump;
+            PlayerController.OnPlayerLand += OnPlayerLand;
 
             // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, CannonAnimator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, CannonAnimator>(PlayerController, this, gameObject);
@@ -153,8 +153,8 @@ namespace AMPR.PlayerController
             InputHandler.Controls.Player.Move.performed -= context => OnPlayerMove(context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Move.canceled -= context => OnPlayerStopMoving();
 
-            PlayerController.ONPlayerJump -= OnPlayerJump;
-            PlayerController.ONPlayerLand -= OnPlayerLand;
+            PlayerController.OnPlayerJump -= OnPlayerJump;
+            PlayerController.OnPlayerLand -= OnPlayerLand;
         }
     }
 }

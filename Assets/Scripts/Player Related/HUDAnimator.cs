@@ -13,7 +13,7 @@ namespace AMPR.Controls
 
         [Header("Rotation settings")]
         public float LookEffectStrength = 1;
-        public Vector2 MaxLookEffect = new Vector2(1, 5);
+        public Vector2 MaxLookEffect = new(3, 1);
         public float JumpEffectStrength = 2;
         public float JumpEffectDuration = 0.2f;
         public float SmoothSpeed = 5;
@@ -37,7 +37,7 @@ namespace AMPR.Controls
         {
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullFindObject<Transform, HUDAnimator>(gameObject, this);
-            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDAnimator>(InputHandler, this, gameObject);
+            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDAnimator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDAnimator>(PlayerController, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
@@ -71,27 +71,13 @@ namespace AMPR.Controls
 
         private void RotateHelmet()
         {
-            Vector3 displacement = Vector3.Lerp(_oldLookInput,                                          // TODO: Replace input-based displacement with position-based difference
+            Vector3 displacement = Vector3.Lerp(_oldLookInput,
                                                 _playerLock ? Vector3.zero : new Vector3(-_lookInput.y,
                                                                                          _lookInput.x,
                                                                                          0),
                                                 Mathf.SmoothStep(0, 1, _currentAcceleration));
 
-            if (Mathf.Abs(displacement.x) > MaxLookEffect.x)
-                displacement.x = displacement.x > 0 ? MaxLookEffect.x : -MaxLookEffect.x;
-
-            if (Mathf.Abs(displacement.y) > MaxLookEffect.y)
-                displacement.y = displacement.y > 0 ? MaxLookEffect.y : -MaxLookEffect.y;
-
-            switch (_activeInput)
-            {
-                case true when _currentAcceleration < 1:
-                    _currentAcceleration += Time.deltaTime * LookEffectStrength;
-                    break;
-                case false when _currentAcceleration > 0:
-                    _currentAcceleration -= Time.deltaTime * LookEffectStrength;
-                    break;
-            }
+            LimitValues(ref displacement);
 
             transform.localRotation = Quaternion.Slerp(transform.localRotation,
                                                        Quaternion.Euler(displacement * LookEffectStrength),
@@ -99,6 +85,23 @@ namespace AMPR.Controls
 
             if (!_playerLock)
                 _oldLookInput = displacement;
+        }
+
+        private Vector3 LimitValues(ref Vector3 displacement)
+        {
+            if (Mathf.Abs(displacement.x) > MaxLookEffect.x)
+                displacement.x = displacement.x > 0 ? MaxLookEffect.x : -MaxLookEffect.x;
+
+            if (Mathf.Abs(displacement.y) > MaxLookEffect.y)
+                displacement.y = displacement.y > 0 ? MaxLookEffect.y : -MaxLookEffect.y;
+
+            if (_activeInput && _currentAcceleration < 1)
+                _currentAcceleration += Time.deltaTime * LookEffectStrength;
+
+            if (!_activeInput && _currentAcceleration > 0)
+                _currentAcceleration -= Time.deltaTime * LookEffectStrength;
+
+            return displacement;
         }
 
         private void LateUpdate() => _oldRot = new(PlayerCamTransform.localEulerAngles.x, PlayerController.transform.eulerAngles.y);

@@ -70,9 +70,9 @@ namespace AMPR.Controls
 
         public delegate void PlayerJumpEvent();
         public delegate void PlayerLockEvent(bool state);
-        public event PlayerJumpEvent ONPlayerJump;
-        public event PlayerJumpEvent ONPlayerLand;
-        public event PlayerLockEvent ONPlayerLock;
+        public event PlayerJumpEvent OnPlayerJump;
+        public event PlayerJumpEvent OnPlayerLand;
+        public event PlayerLockEvent OnPlayerLock;
 
         private Transform _playerCamTransform;
         private CharacterController _controller;
@@ -104,7 +104,7 @@ namespace AMPR.Controls
         private LockOnStatus _lockOnStatus;
         private Transform _lockOnTransform;
         private Vector3 _lockOnPosition = Vector3.zero;
-        private List<ITargetable> _availableTargets;
+        private List<ITarget> _availableTargets;
         //TODO: Keep a list of all lockable targets currently present in view
 
         private void Reset()
@@ -122,11 +122,11 @@ namespace AMPR.Controls
             // #endif
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed += context => OnPlayerMove(context.ReadValue<Vector2>());
-            controls.Player.Move.canceled += context => OnPlayerMove();
-            controls.Player.Look.performed += context => OnPlayerLook(context.ReadValue<Vector2>());
-            controls.Player.Look.canceled += context => OnPlayerLook(Vector2.zero);
-            controls.Player.Jump.performed += context => OnPlayerJump();
+            controls.Player.Move.performed += context => OnMoveInput(context.ReadValue<Vector2>());
+            controls.Player.Move.canceled += context => OnMoveInput();
+            controls.Player.Look.performed += context => OnLookInput(context.ReadValue<Vector2>());
+            controls.Player.Look.canceled += context => OnLookInput(Vector2.zero);
+            controls.Player.Jump.performed += context => OnJumpInput();
             // controls.Player.Lock.performed += context => OnPlayerLockOn();
             controls.Player.Lock.canceled += context => RemoveLockOn();
         }
@@ -141,7 +141,7 @@ namespace AMPR.Controls
             _gravity = Physics.gravity;
             _playerCamTransform = PlayerCamera.transform;
             _nonAllocBuffer = new RaycastHit[DEFAULT_NON_ALLOC_SIZE];
-            _availableTargets = new List<ITargetable>(DEFAULT_TARGETABLE_SIZE);
+            _availableTargets = new List<ITarget>(DEFAULT_TARGETABLE_SIZE);
 
             InputHandler.Controls.Player.Enable();
         }
@@ -266,7 +266,7 @@ namespace AMPR.Controls
             _jumpCooldownTimer = _JumpCooldown;
             _timesJumped++;
 
-            ONPlayerJump?.Invoke();
+            OnPlayerJump?.Invoke();
         }
 
         public void LookAt(Transform lockTransform)
@@ -287,25 +287,25 @@ namespace AMPR.Controls
             _lockOnPosition = Vector3.zero;
             _lockOnTransform = null;
 
-            ONPlayerLock?.Invoke(false);
+            OnPlayerLock?.Invoke(false);
         }
 
-        private void OnPlayerMove(Vector2? input = null)
+        private void OnMoveInput(Vector2? input = null)
         {
             _activeInput = input != null;
             _movementInput = input ?? Vector2.zero;
         }
 
-        private void OnPlayerLook(Vector2 input) => _lookInput = input;
+        private void OnLookInput(Vector2 input) => _lookInput = input;
 
-        private void OnPlayerJump() => _jumpInput = true;
+        private void OnJumpInput() => _jumpInput = true;
 
         private void OnPlayerGrounded()
         {
             _playerGrounded = true;
             _timesJumped = 0;
 
-            ONPlayerLand?.Invoke();
+            OnPlayerLand?.Invoke();
         }
 
         private void OnPlayerLockOn()
@@ -314,24 +314,45 @@ namespace AMPR.Controls
 
             LookAt(Vector3.zero);
 
-            ONPlayerLock?.Invoke(true);
+            OnPlayerLock?.Invoke(true);
         }
 
-        public void RegisterTargetable(ITargetable targetable)
+        private void TargetLost()
+        {
+            if (_lockOnTransform == null)
+            {
+                Debug.LogError("TargetLost should never be called without a target!");
+                return;
+            }
+
+            _lockOnPosition = _lockOnTransform.position;
+            _lockOnStatus = LockOnStatus.Position;
+            _lockOnTransform = null;
+        }
+
+        public void RegisterTarget(ITarget target)
         {
             //TODO: Check if target isn't already registered.
-            _availableTargets.Add(targetable);
+            _availableTargets.Add(target);
+        }
+
+        public void UnregisterTarget(ITarget target)
+        {
+            if (_lockOnTransform.GetComponent<ITarget>() == target)
+                TargetLost();
+
+            _availableTargets.Remove(target);
         }
 
         private void OnDestroy()
         {
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed -= context => OnPlayerMove(context.ReadValue<Vector2>());
-            controls.Player.Move.canceled -= context => OnPlayerMove();
-            controls.Player.Look.performed -= context => OnPlayerLook(context.ReadValue<Vector2>());
-            controls.Player.Look.canceled -= context => OnPlayerLook(Vector2.zero);
-            controls.Player.Jump.performed -= context => OnPlayerJump();
+            controls.Player.Move.performed -= context => OnMoveInput(context.ReadValue<Vector2>());
+            controls.Player.Move.canceled -= context => OnMoveInput();
+            controls.Player.Look.performed -= context => OnLookInput(context.ReadValue<Vector2>());
+            controls.Player.Look.canceled -= context => OnLookInput(Vector2.zero);
+            controls.Player.Jump.performed -= context => OnJumpInput();
             controls.Player.Lock.performed -= context => OnPlayerLockOn();
             controls.Player.Lock.canceled -= context => RemoveLockOn();
         }

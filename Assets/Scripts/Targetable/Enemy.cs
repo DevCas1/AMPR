@@ -1,22 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
-using AMPR.PlayerController;
+using AMPR.Controls;
 using UnityEngine;
 
 namespace AMPR
 {
-    public class Enemy : MonoBehaviour, ITargetable
+    public class Enemy : MonoBehaviour, ITarget
     {
-        public Controls.PlayerController Player;
-
-        public void OnBecomeInvisible()
-        {
-            throw new System.NotImplementedException();
-        }
+        public PlayerController Player;
 
         public void OnBecomeVisible()
         {
-            throw new System.NotImplementedException();
+            Player.RegisterTarget(this);
+        }
+
+        public void OnBecomeInvisible()
+        {
+            Player.UnregisterTarget(this);
         }
     }
 }

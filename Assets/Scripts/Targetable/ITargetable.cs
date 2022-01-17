@@ -1,9 +1,9 @@
 namespace AMPR
 {
-    public interface ITargetable
+    public interface ITarget
     {
-        public abstract void OnBecomeInvisible();
-
         public abstract void OnBecomeVisible();
+
+        public abstract void OnBecomeInvisible();
     }
 }
