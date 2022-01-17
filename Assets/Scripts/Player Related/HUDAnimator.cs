@@ -2,7 +2,7 @@ using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR.PlayerController
+namespace AMPR.Controls
 {
     public class HUDAnimator : MonoBehaviour
     {
@@ -30,7 +30,6 @@ namespace AMPR.PlayerController
         private Vector2 _lookInput;
         private Vector3 _oldLookInput;
         private Vector2 _oldRot;
-        private Vector2 _lookRot;
         private float _currentAcceleration;
         private bool _playerLock;
 
@@ -38,18 +37,37 @@ namespace AMPR.PlayerController
         {
 #if UNITY_EDITOR
             DebugUtility.HandleErrorIfNullFindObject<Transform, HUDAnimator>(gameObject, this);
-            // DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDAnimator>(InputHandler, this, gameObject);
+            DebugUtility.HandleErrorIfNullGetComponent<InputHandler, HUDAnimator>(InputHandler, this, gameObject);
             DebugUtility.HandleErrorIfNullGetComponent<PlayerController, HUDAnimator>(PlayerController, this, gameObject);
 #endif
             InputHandler.Controls.Player.Look.performed += context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled += context => OnLookInput(false, Vector2.zero);
 
-            PlayerController.ONPlayerJump += OnPlayerJump;
-            PlayerController.ONPlayerLand += OnPlayerLand;
-            PlayerController.ONPlayerLock += OnPlayerLock;
+            PlayerController.OnPlayerJump += OnPlayerJump;
+            PlayerController.OnPlayerLand += OnPlayerLand;
+            PlayerController.OnPlayerLock += OnPlayerLock;
         }
 
         private void Update() => RotateHelmet();
+
+        // private void RotateHelmet()
+        // {
+        //     Vector3 rot = transform.eulerAngles;
+        //     Vector2 target = new(PlayerCamTransform.localEulerAngles.x, PlayerController.transform.eulerAngles.y);
+        //     Vector2 difference = new(target.x - rot.x, target.y - rot.y);
+
+        //     // if (difference.x > MaxLookEffect.x)
+        //     //     difference.x = MaxLookEffect.x;
+
+        //     // if (difference.y > MaxLookEffect.y)
+        //     //     difference.y = MaxLookEffect.y;
+
+        //     Quaternion rotation = transform.localRotation;
+
+        //     transform.localRotation = Quaternion.Slerp(rotation,
+        //                                                Quaternion.Euler(difference),
+        //                                                Time.deltaTime * SmoothSpeed);
+        // }
 
         private void RotateHelmet()
         {
@@ -83,10 +101,7 @@ namespace AMPR.PlayerController
                 _oldLookInput = displacement;
         }
 
-        private void LateUpdate()
-        {
-            _oldRot = new Vector2(PlayerCamTransform.eulerAngles.x, PlayerController.transform.eulerAngles.y);
-        }
+        private void LateUpdate() => _oldRot = new(PlayerCamTransform.localEulerAngles.x, PlayerController.transform.eulerAngles.y);
 
         private void OnLookInput(bool active, Vector2 input)
         {
@@ -116,8 +131,8 @@ namespace AMPR.PlayerController
         {
             InputHandler.Controls.Player.Look.performed -= context => OnLookInput(true, context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Look.canceled -= context => OnLookInput(false, Vector2.zero);
-            PlayerController.ONPlayerJump -= OnPlayerJump;
-            PlayerController.ONPlayerLock -= OnPlayerLock;
+            PlayerController.OnPlayerJump -= OnPlayerJump;
+            PlayerController.OnPlayerLock -= OnPlayerLock;
         }
     }
 }
