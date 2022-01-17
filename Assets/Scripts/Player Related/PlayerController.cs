@@ -3,7 +3,7 @@ using AMPR.Manager;
 using NaughtyAttributes;
 using UnityEngine;
 
-namespace AMPR.PlayerController
+namespace AMPR.Controls
 {
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour
@@ -104,7 +104,7 @@ namespace AMPR.PlayerController
         private LockOnStatus _lockOnStatus;
         private Transform _lockOnTransform;
         private Vector3 _lockOnPosition = Vector3.zero;
-        private List<Targetable> _availableTargets;
+        private List<ITargetable> _availableTargets;
         //TODO: Keep a list of all lockable targets currently present in view
 
         private void Reset()
@@ -141,7 +141,7 @@ namespace AMPR.PlayerController
             _gravity = Physics.gravity;
             _playerCamTransform = PlayerCamera.transform;
             _nonAllocBuffer = new RaycastHit[DEFAULT_NON_ALLOC_SIZE];
-            _availableTargets = new List<Targetable>(DEFAULT_TARGETABLE_SIZE);
+            _availableTargets = new List<ITargetable>(DEFAULT_TARGETABLE_SIZE);
 
             InputHandler.Controls.Player.Enable();
         }
@@ -317,7 +317,7 @@ namespace AMPR.PlayerController
             ONPlayerLock?.Invoke(true);
         }
 
-        public void RegisterTargetable(Targetable targetable)
+        public void RegisterTargetable(ITargetable targetable)
         {
             //TODO: Check if target isn't already registered.
             _availableTargets.Add(targetable);
