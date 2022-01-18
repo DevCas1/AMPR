@@ -204,6 +204,7 @@ MonoBehaviour:
     m_Bits: 128
   _JumpCooldown: 0.15
   _AmountOfJumps: 2
+  _PositionLockDistance: 20
 --- !u!1 &2078337431712483336
 GameObject:
   m_ObjectHideFlags: 0

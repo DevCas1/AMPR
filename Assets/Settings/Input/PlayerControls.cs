@@ -69,8 +69,8 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""id"": ""c2d35530-cf47-46f4-abd3-72e4987acdde"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
-                    ""interactions"": ""Press(behavior=2)"",
-                    ""initialStateCheck"": false
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""Cancel"",

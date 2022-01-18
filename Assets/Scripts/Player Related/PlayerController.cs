@@ -66,6 +66,9 @@ namespace AMPR.Controls
         [SerializeField, Tooltip("The amount of times the player can jump without touching any ground."), Range(1, 3)]
         private int _AmountOfJumps = 2;
 
+        [Header("Lock On Settings"), SerializeField]
+        private float _PositionLockDistance = 100;
+
         public Vector2 Torque => _rotationVector;
 
         public delegate void PlayerJumpEvent();
@@ -122,12 +125,12 @@ namespace AMPR.Controls
             // #endif
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed += context => OnMoveInput(context.ReadValue<Vector2>());
+            controls.Player.Move.performed += context => OnMoveInput(true, context.ReadValue<Vector2>());
             controls.Player.Move.canceled += context => OnMoveInput();
             controls.Player.Look.performed += context => OnLookInput(context.ReadValue<Vector2>());
             controls.Player.Look.canceled += context => OnLookInput(Vector2.zero);
             controls.Player.Jump.performed += context => OnJumpInput();
-            // controls.Player.Lock.performed += context => OnPlayerLockOn();
+            controls.Player.Lock.performed += context => OnPlayerLockOn();
             controls.Player.Lock.canceled += context => RemoveLockOn();
         }
 
@@ -161,40 +164,41 @@ namespace AMPR.Controls
 
         private void UpdateRotations()
         {
-            Vector2 newRotation; // X for Camera rotation, Y for Player rotation
-
             if (_lockOnStatus == LockOnStatus.None)
             {
                 Vector2 newLookVector = _lookInput * (_TurnSpeed * Time.deltaTime);
+                Vector2 newRotation = new(_playerCamTransform.localRotation.eulerAngles.x - (_InvertY ? -newLookVector.y : newLookVector.y),
+                                          transform.rotation.eulerAngles.y + ((_InvertX ? -newLookVector.x : newLookVector.x)));
 
-                newRotation = new Vector2(transform.rotation.eulerAngles.y + ((_InvertX ? -newLookVector.x : newLookVector.x)),
-                                          _playerCamTransform.localRotation.eulerAngles.x - (_InvertY ? -newLookVector.y : newLookVector.y));
-                // newCameraRotation = _playerCamTransform.localRotation.eulerAngles.x - (_InvertY ? -newLookVector.y : newLookVector.y)) * deltaTime;
-            }
-            else
-            {
-                // Vector3 targetPos = ;
-                newRotation = ((_lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition) - new Vector3(transform.position.x, _playerCamTransform.position.y, transform.position.z)).normalized;
-                // newRotation = targetDir.y;
-                // newCameraRotation = targetDir.x;
+                ApplyRotationConstraints(ref newRotation);
 
-                // Debug.DrawRay(targetDir, -targetDir, Color.magenta);
+                _playerCamTransform.localRotation = Quaternion.Euler(newRotation.x, 0, 0);
+                transform.rotation = Quaternion.Euler(0, newRotation.y, 0);
+                return;
             }
 
-            if (newRotation.y < 180 && newRotation.y > _MinCameraAngle)
+            Vector3 targetPos = _lockOnStatus == LockOnStatus.Transform ? _lockOnTransform.position : _lockOnPosition;
+
+            transform.LookAt(targetPos);
+            _playerCamTransform.LookAt(targetPos);
+
+            transform.rotation = Quaternion.Euler(new(0, transform.eulerAngles.y, 0));
+            _playerCamTransform.localRotation = Quaternion.Euler(new(_playerCamTransform.localEulerAngles.x, 0, 0));
+        }
+
+        private void ApplyRotationConstraints(ref Vector2 newRotation)
+        {
+            if (newRotation.x < 180 && newRotation.x > _MinCameraAngle)
             {
-                newRotation.y = _MinCameraAngle;
+                newRotation.x = _MinCameraAngle;
                 RemoveLockOn();
             }
 
-            if (newRotation.y > 180 && newRotation.y < _MaxCameraAngle)
+            if (newRotation.x > 180 && newRotation.x < _MaxCameraAngle)
             {
-                newRotation.y = _MaxCameraAngle;
+                newRotation.x = _MaxCameraAngle;
                 RemoveLockOn();
             }
-
-            transform.rotation = Quaternion.Euler(0, newRotation.x, 0);
-            _playerCamTransform.localRotation = Quaternion.Euler(newRotation.y, 0, 0);
         }
 
         private void UpdateMovement()
@@ -269,13 +273,13 @@ namespace AMPR.Controls
             OnPlayerJump?.Invoke();
         }
 
-        public void LookAt(Transform lockTransform)
+        public void LockOnTransform(Transform lockTransform)
         {
             _lockOnStatus = LockOnStatus.Transform;
             _lockOnTransform = lockTransform;
         }
 
-        public void LookAt(Vector3 lockPosition)
+        public void LockOnPosition(Vector3 lockPosition)
         {
             _lockOnStatus = LockOnStatus.Position;
             _lockOnPosition = lockPosition;
@@ -290,9 +294,9 @@ namespace AMPR.Controls
             OnPlayerLock?.Invoke(false);
         }
 
-        private void OnMoveInput(Vector2? input = null)
+        private void OnMoveInput(bool activeInput = false, Vector2? input = null)
         {
-            _activeInput = input != null;
+            _activeInput = activeInput;
             _movementInput = input ?? Vector2.zero;
         }
 
@@ -312,7 +316,7 @@ namespace AMPR.Controls
         {
             //TODO: Check for all lockable targets in view, and lock onto the one nearest to the screen's center.
 
-            LookAt(Vector3.zero);
+            LockOnPosition(_playerCamTransform.forward * _PositionLockDistance);
 
             OnPlayerLock?.Invoke(true);
         }
@@ -348,7 +352,7 @@ namespace AMPR.Controls
         {
             PlayerControls controls = InputHandler.Controls;
 
-            controls.Player.Move.performed -= context => OnMoveInput(context.ReadValue<Vector2>());
+            controls.Player.Move.performed -= context => OnMoveInput(true, context.ReadValue<Vector2>());
             controls.Player.Move.canceled -= context => OnMoveInput();
             controls.Player.Look.performed -= context => OnLookInput(context.ReadValue<Vector2>());
             controls.Player.Look.canceled -= context => OnLookInput(Vector2.zero);
