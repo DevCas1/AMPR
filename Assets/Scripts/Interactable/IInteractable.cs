@@ -1,7 +1,9 @@
+using UnityEngine;
+
 namespace AMPR.Interactable
 {
     public interface IInteractable
     {
-        void Interact();
+        void Interact(Component other);
     }
 }

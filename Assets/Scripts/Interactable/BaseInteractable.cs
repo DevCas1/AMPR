@@ -4,6 +4,9 @@ namespace AMPR.Interactable
 {
     public abstract class BaseInteractable : MonoBehaviour, IInteractable
     {
-        public abstract void Interact();
+        public virtual void Interact(Component other)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
