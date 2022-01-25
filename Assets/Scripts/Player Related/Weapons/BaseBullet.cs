@@ -8,34 +8,40 @@ namespace AMPR.Weapon
     {
         public float Damage { get => _damage; }
 
-        [SerializeField, Min(0)]
         private int _damage;
-        [SerializeField, Min(0)]
-        private int _speed;
-
+        private float _speed;
+        private float _despawnTimer;
         private Rigidbody _rb;
 
-        private void Reset() => Initialize();
-
-        private void Awake() => Initialize();
-
-        // private void Start() => Initialize(); // Doesn't trigger after instantiation
-
-        private void Initialize()
+        internal void Shoot(int damage, float speed, float despawnTime)
         {
+            _damage = damage;
+            _speed = speed;
+            _despawnTimer = despawnTime;
             _rb = GetComponent<Rigidbody>();
             _rb.useGravity = false;
-
             GetComponent<SphereCollider>().isTrigger = true;
+
+            _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
         }
 
-        internal void Shoot() => _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
+        private void Update()
+        {
+            _despawnTimer -= Time.deltaTime;
+            if (_despawnTimer < 0)
+                End();
+        }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.transform.GetComponent<PlayerController>())
                 return;
 
+            End();
+        }
+
+        private void End()
+        {
             Destroy(gameObject);
             Debug.Log("Bullet destroyed");
         }

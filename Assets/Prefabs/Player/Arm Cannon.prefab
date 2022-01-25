@@ -47,6 +47,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30e8e881bfdfff34db9b9c746b4f3859, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
+  BulletOrigin: {fileID: 0}
+  Beams:
+  - {fileID: 11400000, guid: 409668410b5daa942b8e2f024bf7ab58, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &7350775784051326729
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,6 +67,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
+  ArmCannon: {fileID: 0}
   PlayerController: {fileID: 0}
   PunchForce: 0.33
   PunchDuration: 0.4

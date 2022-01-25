@@ -36,7 +36,7 @@ namespace AMPR.Weapon
         private void SetBeam(int beamIndex)
         {
             _currentBeam = Beams[beamIndex];
-            _Cooldown = _currentBeam.FireRate / 60;
+            _Cooldown = 1 / _currentBeam.FireRate;
             _cooldownTimer = 0;
         }
 
@@ -59,10 +59,13 @@ namespace AMPR.Weapon
 
             if (_cooldownTimer > 0)
             {
-                UpdateTimer(ref deltaTime);
-
                 if (_canShoot && _shootInput)
+                {
                     Debug.Log($"Not ready to shoot for another {_cooldownTimer}(m)s");
+                    _shootInput = false;
+                }
+
+                UpdateTimer(ref deltaTime);
 
                 return;
             }
