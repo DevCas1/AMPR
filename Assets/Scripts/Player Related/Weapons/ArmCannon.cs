@@ -46,7 +46,7 @@ namespace AMPR.Weapon
             {
                 if (Beams[index] == null)
                 {
-                    Debug.LogError($"Empty Beam slot at index {index}!");
+                    Debug.LogWarning($"Empty Beam slot at index {index}!");
                     continue;
                 }
                 Beams[index].Initialize(this);

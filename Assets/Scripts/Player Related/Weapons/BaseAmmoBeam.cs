@@ -7,11 +7,6 @@ namespace AMPR.Weapon
     [Serializable]
     public abstract class BaseAmmoBeam : BaseBeam
     {
-        [SerializeField]
-        private string _name;
-        [SerializeField]
-        private int _fireRate;
-
         [SerializeField, Header("Ammo Settings")]
         private bool _requireAmmo;
         [SerializeField, EnableIf(nameof(_requireAmmo))]

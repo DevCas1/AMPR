@@ -12,17 +12,17 @@ namespace AMPR.Weapon
         public BaseBullet BulletPrefab;
 
         [SerializeField]
-        private string _name;
+        protected string _name;
         [SerializeField, Min(.01f)]
-        private float _fireRate;
+        protected float _fireRate;
         [SerializeField, Min(0)]
-        private int _damage;
+        protected int _damage;
         [SerializeField, Min(1)]
-        private float _bulletSpeed;
+        protected float _bulletSpeed;
         [SerializeField, Min(0)]
-        private float _despawnTime;
+        protected float _despawnTime;
 
-        private ArmCannon _armCannon;
+        protected ArmCannon _armCannon;
 
         internal virtual void Initialize(ArmCannon armCannon) => _armCannon = armCannon;
 

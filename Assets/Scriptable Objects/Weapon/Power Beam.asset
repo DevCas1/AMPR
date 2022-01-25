@@ -18,3 +18,5 @@ MonoBehaviour:
   _damage: 1
   _bulletSpeed: 35
   _despawnTime: 6
+  BulletPrefab: {fileID: 3546786908810105866, guid: 9fadc2a4665f7c04781d6644e60783a6, type: 3}
+  _fadeDuration: 1

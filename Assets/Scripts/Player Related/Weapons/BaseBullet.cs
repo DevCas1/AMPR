@@ -8,38 +8,55 @@ namespace AMPR.Weapon
     {
         public float Damage { get => _damage; }
 
-        private int _damage;
-        private float _speed;
-        private float _despawnTimer;
-        private Rigidbody _rb;
+        protected int _damage;
+        protected float _speed;
+        protected float _despawnTimer;
+        protected Rigidbody _rb;
+        protected Collider _col;
 
-        internal virtual void Initialize(int damage, float speed, float despawnTime)
+        internal virtual bool Initialize(int damage, float speed, float despawnTime)
         {
             _damage = damage;
             _speed = speed;
             _despawnTimer = despawnTime;
             _rb = GetComponent<Rigidbody>();
             _rb.useGravity = false;
-            GetComponent<SphereCollider>().isTrigger = true;
+            _col = GetComponent<SphereCollider>();
+            _col.isTrigger = true;
+            return true;
         }
 
-        internal virtual void Shoot(int damage, float speed, float despawnTime)
+        internal virtual bool Shoot(int damage, float speed, float despawnTime)
         {
             Initialize(damage, speed, despawnTime);
 
             _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
+            return true;
         }
 
         protected virtual void Update()
         {
-            _despawnTimer -= Time.deltaTime;
             if (_despawnTimer < 0)
+            {
                 End();
+                return;
+            }
+
+            _despawnTimer -= Time.deltaTime;
         }
 
-        protected virtual void OnTriggerEnter(Collider other)
+        // protected void OnCollisionEnter(Collision col)
+        // {
+        //     if (col.transform.GetComponent<PlayerController>())
+        //         return;
+
+        //     Debug.Log($"Bullet collided with {_col.transform.name}");
+        //     End();
+        // }
+
+        protected void OnTriggerEnter(Collider col)
         {
-            if (other.transform.GetComponent<PlayerController>())
+            if (col.transform.GetComponent<PlayerController>())
                 return;
 
             End();
@@ -48,7 +65,6 @@ namespace AMPR.Weapon
         protected virtual void End()
         {
             Destroy(gameObject);
-            Debug.Log("Bullet destroyed");
         }
     }
 }
