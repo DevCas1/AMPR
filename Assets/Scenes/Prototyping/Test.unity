@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 1bc875b9a8873c8448942774342dab06, type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_LightingSettings: {fileID: 4890085278179872738, guid: e00e0cd57fe5c884a95c0a6548fb51f2, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -1125,7 +1125,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &849566251
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1612,7 +1612,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0.66
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1651,7 +1651,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -3284,29 +3284,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1816219194}
     m_Modifications:
-    - target: {fileID: 618809875257406321, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 618809876039755212, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 618809876039755214, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: 7e5fbfcd26054e4408b82074fd4a0ae2, type: 2}
     - target: {fileID: 618809876891397968, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
       propertyPath: m_Name
       value: Ground
       objectReference: {fileID: 0}
-    - target: {fileID: 618809876891397968, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_Layer
-      value: 7
-      objectReference: {fileID: 0}
     - target: {fileID: 618809876891397969, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
       propertyPath: m_RootOrder
-      value: 23
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 618809876891397969, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3347,18 +3331,6 @@ PrefabInstance:
     - target: {fileID: 618809876891397969, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 618809877127530250, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_ScaleInLightmap
-      value: 0.32
-      objectReference: {fileID: 0}
-    - target: {fileID: 618809877127530250, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_LightmapParameters
-      value: 
-      objectReference: {fileID: 15200, guid: 0000000000000000f000000000000000, type: 0}
-    - target: {fileID: 618809877127530255, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}
-      propertyPath: m_Layer
-      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 802c2095894eeaa4ca313ee1ea48f75f, type: 3}

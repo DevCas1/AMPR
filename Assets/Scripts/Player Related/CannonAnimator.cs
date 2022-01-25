@@ -1,14 +1,16 @@
 using System;
+using AMPR.Controls;
 using AMPR.Manager;
 using DG.Tweening;
 using UnityEngine;
 
-namespace AMPR.Controls
+namespace AMPR.Weapon
 {
     public class CannonAnimator : MonoBehaviour // TODO: Implement local rotation over time by high rate of fire
     {
         [Header("References")]
         public InputHandler InputHandler;
+        public ArmCannon ArmCannon;
         public PlayerController PlayerController;
 
         [Header("Punch Related")]
@@ -52,7 +54,8 @@ namespace AMPR.Controls
 
         private void Start()
         {
-            InputHandler.Controls.Player.Fire.performed += context => OnCannonFire();
+            ArmCannon.OnShoot += OnCannonFire;
+
             InputHandler.Controls.Player.Move.performed += context => OnPlayerMove(context.ReadValue<Vector2>());
             InputHandler.Controls.Player.Move.canceled += context => OnPlayerStopMoving();
 

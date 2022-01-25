@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 618809875257406322}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,6 +26,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 618809877127530248}
   m_Father: {fileID: 618809876891397969}
@@ -41,7 +42,7 @@ GameObject:
   m_Component:
   - component: {fileID: 618809876039755213}
   - component: {fileID: 618809876039755214}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,6 +59,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 618809876891397969}
   m_RootOrder: 0
@@ -69,7 +71,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 618809876039755212}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 7e5fbfcd26054e4408b82074fd4a0ae2, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -84,8 +86,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 618809876891397969}
-  m_Layer: 6
-  m_Name: Ground 1
+  m_Layer: 7
+  m_Name: Ground (simple)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,6 +103,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 618809876039755213}
   - {fileID: 618809875257406322}
@@ -118,7 +121,7 @@ GameObject:
   - component: {fileID: 618809877127530248}
   - component: {fileID: 618809877127530251}
   - component: {fileID: 618809877127530250}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135,6 +138,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.5, z: 0}
   m_LocalScale: {x: 54, y: 1, z: 54}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 618809875257406322}
   m_RootOrder: 0
@@ -158,6 +162,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 2
@@ -173,7 +178,7 @@ MeshRenderer:
   m_StaticBatchRoot: {fileID: 0}
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 0.1
+  m_ScaleInLightmap: 0.32
   m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
@@ -183,7 +188,7 @@ MeshRenderer:
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
+  m_LightmapParameters: {fileID: 15200, guid: 0000000000000000f000000000000000, type: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
