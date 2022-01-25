@@ -13,7 +13,7 @@ namespace AMPR.Weapon
         private float _despawnTimer;
         private Rigidbody _rb;
 
-        internal void Shoot(int damage, float speed, float despawnTime)
+        internal virtual void Initialize(int damage, float speed, float despawnTime)
         {
             _damage = damage;
             _speed = speed;
@@ -21,18 +21,23 @@ namespace AMPR.Weapon
             _rb = GetComponent<Rigidbody>();
             _rb.useGravity = false;
             GetComponent<SphereCollider>().isTrigger = true;
+        }
+
+        internal virtual void Shoot(int damage, float speed, float despawnTime)
+        {
+            Initialize(damage, speed, despawnTime);
 
             _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             _despawnTimer -= Time.deltaTime;
             if (_despawnTimer < 0)
                 End();
         }
 
-        private void OnTriggerEnter(Collider other)
+        protected virtual void OnTriggerEnter(Collider other)
         {
             if (other.transform.GetComponent<PlayerController>())
                 return;
@@ -40,7 +45,7 @@ namespace AMPR.Weapon
             End();
         }
 
-        private void End()
+        protected virtual void End()
         {
             Destroy(gameObject);
             Debug.Log("Bullet destroyed");
