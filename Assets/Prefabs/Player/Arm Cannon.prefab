@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1022927170
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1022927171}
+  m_Layer: 8
+  m_Name: Bullet Origin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1022927171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1022927170}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.054, y: 0.0237, z: -0.208}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3235220429192101001}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6601382434839864502
 GameObject:
   m_ObjectHideFlags: 0
@@ -10,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7910444659362813605}
   - component: {fileID: 6836803393808361635}
-  - component: {fileID: 7350775784051326729}
+  - component: {fileID: 5775791272612538964}
   m_Layer: 8
   m_Name: Arm Cannon
   m_TagString: Untagged
@@ -48,13 +79,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
-  BulletOrigin: {fileID: 0}
+  BulletOrigin: {fileID: 1022927171}
   Beams:
   - {fileID: 11400000, guid: 409668410b5daa942b8e2f024bf7ab58, type: 2}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
---- !u!114 &7350775784051326729
+--- !u!114 &5775791272612538964
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InputHandler: {fileID: 11400000, guid: eff0a9926de05b348909017d9588292e, type: 2}
-  ArmCannon: {fileID: 0}
+  ArmCannon: {fileID: 6836803393808361635}
   PlayerController: {fileID: 0}
   PunchForce: 0.33
   PunchDuration: 0.4
@@ -88,7 +119,7 @@ GameObject:
   - component: {fileID: 4777721174829194419}
   - component: {fileID: 3742051242586696479}
   m_Layer: 8
-  m_Name: polySurface11
+  m_Name: Cannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -105,7 +136,8 @@ Transform:
   m_LocalPosition: {x: 0.083, y: -0.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1022927171}
   m_Father: {fileID: 7910444659362813605}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
