@@ -1,37 +1,48 @@
-using AMPR.Controls;
+using AMPR.Interactable;
 using UnityEngine;
 
 namespace AMPR.Weapon
 {
     [RequireComponent(typeof(Rigidbody), typeof(SphereCollider))]
-    public class BaseBullet : MonoBehaviour
+    internal abstract class BaseBullet : MonoBehaviour
     {
         public float Damage { get => _damage; }
 
+        protected bool _initialized;
         protected int _damage;
         protected float _speed;
         protected float _despawnTimer;
         protected Rigidbody _rb;
         protected Collider _col;
 
-        internal virtual bool Initialize(int damage, float speed, float despawnTime)
+        internal virtual void Initialize(int damage, float speed, float despawnTime)
         {
             _damage = damage;
             _speed = speed;
             _despawnTimer = despawnTime;
             _rb = GetComponent<Rigidbody>();
+
             _rb.useGravity = false;
             _col = GetComponent<SphereCollider>();
+
             _col.isTrigger = true;
-            return true;
+            _initialized = true;
         }
 
-        internal virtual bool Shoot(int damage, float speed, float despawnTime)
+        internal virtual void Shoot()
+        {
+            if (!_initialized)
+            {
+                Debug.LogError($"Can't shoot bullet {transform.name} without initializing it!");
+                return;
+            }
+            _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
+        }
+
+        internal virtual void Shoot(int damage, float speed, float despawnTime)
         {
             Initialize(damage, speed, despawnTime);
-
             _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
-            return true;
         }
 
         protected virtual void Update()
@@ -45,19 +56,12 @@ namespace AMPR.Weapon
             _despawnTimer -= Time.deltaTime;
         }
 
-        // protected void OnCollisionEnter(Collision col)
-        // {
-        //     if (col.transform.GetComponent<PlayerController>())
-        //         return;
-
-        //     Debug.Log($"Bullet collided with {_col.transform.name}");
-        //     End();
-        // }
-
         protected void OnTriggerEnter(Collider col)
         {
-            if (col.transform.GetComponent<PlayerController>())
-                return;
+            var interactable = col.transform.GetComponent<IInteractable>();
+
+            if (interactable != null)
+                interactable.Interact(this);
 
             End();
         }

@@ -3,25 +3,25 @@ using UnityEngine;
 
 namespace AMPR.Weapon
 {
-    public class PowerBullet : BaseBullet
+    internal class PowerBullet : BaseBullet
     {
         private Light _light;
         private float _fadeDuration;
 
-        internal bool Initialize(int damage, float speed, float despawnTime, float fadeDuration)
+        internal void Initialize(int damage, float speed, float despawnTime, float fadeDuration)
         {
             _light = GetComponent<Light>();
             _fadeDuration = fadeDuration;
 
-            return base.Initialize(damage, speed, despawnTime);
+            base.Initialize(damage, speed, despawnTime);
         }
 
-        internal bool Shoot(int damage, float speed, float despawnTime, float fadeDuration)
+        internal void Shoot(int damage, float speed, float despawnTime, float fadeDuration)
         {
             _light = GetComponent<Light>();
             _fadeDuration = fadeDuration;
 
-            return base.Shoot(damage, speed, despawnTime);
+            base.Shoot(damage, speed, despawnTime);
         }
 
         protected override void End()

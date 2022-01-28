@@ -17,12 +17,15 @@ namespace AMPR.Weapon
         private BaseBeam _currentBeam;
         private bool _canShoot = true;
         private bool _shootInput;
+        private bool _chargeInput;
         private float _Cooldown;
         private float _cooldownTimer;
 
         private void OnEnable()
         {
-            InputHandler.Controls.Player.Fire.performed += context => _shootInput = true;
+            InputHandler.Controls.Player.Fire.started += context => _shootInput = true;
+            InputHandler.Controls.Player.Fire.performed += context => OnCharge();
+            InputHandler.Controls.Player.Fire.canceled += context => OnChargeShoot();
         }
 
         private void Start()
@@ -66,7 +69,6 @@ namespace AMPR.Weapon
                 }
 
                 UpdateTimer(ref deltaTime);
-
                 return;
             }
 
@@ -75,7 +77,7 @@ namespace AMPR.Weapon
 
             if (_shootInput)
             {
-                _currentBeam.Shoot();
+                _currentBeam.ShootBeam();
                 OnShoot?.Invoke();
                 _shootInput = false;
                 _cooldownTimer = _Cooldown;
@@ -87,6 +89,16 @@ namespace AMPR.Weapon
             _cooldownTimer -= deltaTime;
             if (_cooldownTimer < 0)
                 _cooldownTimer = 0;
+        }
+
+        private void OnCharge()
+        {
+            _chargeInput = true;
+        }
+
+        private void OnChargeShoot()
+        {
+            _chargeInput = false;
         }
 
         private void OnDisable() => CleanUp();
