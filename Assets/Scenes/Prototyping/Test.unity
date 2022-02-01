@@ -3137,6 +3137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d532e7a16506e074d9574b69731fe8cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!143 &1825975955 stripped
+CharacterController:
+  m_CorrespondingSourceObject: {fileID: 3940298132810024167, guid: 4d2c1e1d02acaae4183a7c8f86ce91c9, type: 3}
+  m_PrefabInstance: {fileID: 215711744}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2019111572
 GameObject:
   m_ObjectHideFlags: 0
@@ -3399,10 +3404,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1510195121, guid: 1e71b05cd8be19442a3a897ff96abf9a, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1825975955}
     - target: {fileID: 1853001451, guid: 1e71b05cd8be19442a3a897ff96abf9a, type: 3}
       propertyPath: _player
       value: 
-      objectReference: {fileID: 1825975953}
+      objectReference: {fileID: 1825975955}
     - target: {fileID: 7812095230555369288, guid: 1e71b05cd8be19442a3a897ff96abf9a, type: 3}
       propertyPath: m_Name
       value: Power Door

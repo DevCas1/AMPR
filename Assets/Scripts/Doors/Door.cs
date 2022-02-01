@@ -19,30 +19,34 @@ namespace AMPR.Interactable
         [SerializeField]
         private GameObject _doorPlates;
         [SerializeField]
-        private PlayerController _player;
+        private CharacterController _player;
         [SerializeField, Header("Settings")]
         private float _fadeTime;
         [SerializeField]
         private ShieldType _shieldtype = ShieldType.Power;
 
         private DoorState _state = DoorState.Closed;
+        private Tweener _fadeTweener;
+        private float _lastDistance;
 
         private void Start()
         {
             if (_player == null)
             {
                 Debug.LogWarning("Player unasigned at runtime, finding player");
-                _player = FindObjectOfType<PlayerController>();
+                _player = FindObjectOfType<CharacterController>();
             }
         }
 
         private void Update()
         {
-            if (_state == DoorState.Locked)
+            if (_state == DoorState.Locked || _state == DoorState.Unlocking || _state == DoorState.Opening)
                 return;
 
-            if (_state is DoorState.Unlocking or DoorState.Opening or DoorState.Open && Vector3.Dot(_player.Velocity, transform.forward) > 0) // If door is anything but closed and the player is moving away from the door
+            if ((_player.transform.position - transform.position).sqrMagnitude - _lastDistance > 0.1f) // If door is anything but closed and the player is moving away from the door
                 Close();
+
+            _lastDistance = (_player.transform.position - transform.position).sqrMagnitude;
         }
 
         public void Interact(Component other)
@@ -60,29 +64,38 @@ namespace AMPR.Interactable
         private void Open()
         {
             _state = DoorState.Opening;
+
             _doorPlates.SetActive(false); // TODO: Replace with opening animation
+
             _collider.enabled = false;
             _state = DoorState.Open;
         }
 
         private void Close()
         {
+            if (_fadeTweener != null)
+                _fadeTweener.Complete(false);
+
             _state = DoorState.Closing;
+
             _doorPlates.SetActive(true);
+
             _collider.enabled = true;
             _state = DoorState.Closed;
+
             Lock();
         }
 
         private void Unlock()
         {
             _state = DoorState.Unlocking;
-            _shieldRenderer.material.DOFade(0, _fadeTime).OnComplete(() => Open());
+
+            if (_fadeTweener != null)
+                _fadeTweener.Complete(false);
+
+            _fadeTweener = _shieldRenderer.material.DOFade(0, _fadeTime).OnComplete(() => { Open(); _fadeTweener = null; });
         }
 
-        private void Lock()
-        {
-            _shieldRenderer.material.DOFade(255, _fadeTime).OnComplete(() => { _state = DoorState.Closed; _collider.enabled = true; });
-        }
+        private void Lock() => _fadeTweener = _shieldRenderer.material.DOFade(1, _fadeTime).OnComplete(() => { _state = DoorState.Closed; _collider.enabled = true; _fadeTweener = null; });
     }
 }
