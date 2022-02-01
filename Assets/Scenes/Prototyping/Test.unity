@@ -3399,6 +3399,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1853001451, guid: 1e71b05cd8be19442a3a897ff96abf9a, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 1825975953}
     - target: {fileID: 7812095230555369288, guid: 1e71b05cd8be19442a3a897ff96abf9a, type: 3}
       propertyPath: m_Name
       value: Power Door

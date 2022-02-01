@@ -12,6 +12,8 @@ namespace AMPR.Controls
         private static int DEFAULT_NON_ALLOC_SIZE = 10;
         private static int DEFAULT_TARGETABLE_SIZE = 10;
 
+        public Vector3 Velocity { get => _playerVelocity; }
+
         /// Public Unity initialized \\\\\
         [Header("References")]
 
