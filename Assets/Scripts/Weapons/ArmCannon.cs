@@ -64,7 +64,7 @@ namespace AMPR.Weapon
             {
                 if (_canShoot && _shootInput)
                 {
-                    Debug.Log($"Not ready to shoot for another {_cooldownTimer}(m)s");
+                    Debug.Log($"Not ready to shoot for another {_cooldownTimer}(m)s"); // TODO: remove when released
                     _shootInput = false;
                 }
 

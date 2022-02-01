@@ -8,7 +8,7 @@ namespace AMPR.Weapon
     {
         public float Damage { get => _damage; }
 
-        protected bool _initialized;
+        protected bool _initialized = false;
         protected int _damage;
         protected float _speed;
         protected float _despawnTimer;
@@ -58,10 +58,14 @@ namespace AMPR.Weapon
 
         protected void OnTriggerEnter(Collider col)
         {
+            Debug.Log($"Bullet {transform.name} collided with {col.transform.name}");
             var interactable = col.transform.GetComponent<IInteractable>();
 
             if (interactable != null)
+            {
                 interactable.Interact(this);
+                Debug.Log($"{transform.name} interacts with Interactable {col.transform.name}");
+            }
 
             End();
         }

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3546786908810105866}
   - component: {fileID: 8134512866232232320}
   - component: {fileID: -3134350007216934614}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Power Beam Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
