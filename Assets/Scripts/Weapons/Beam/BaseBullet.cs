@@ -59,7 +59,7 @@ namespace AMPR.Weapon
         protected void OnTriggerEnter(Collider col)
         {
             Debug.Log($"Bullet {transform.name} collided with {col.transform.name}");
-            var interactable = col.transform.GetComponent<IInteractable>();
+            var interactable = col.transform.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
