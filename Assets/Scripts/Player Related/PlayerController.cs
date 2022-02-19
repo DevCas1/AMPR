@@ -87,6 +87,7 @@ namespace AMPR.Controls
         private Vector2 _lastMovementInput;
         private bool _activeInput;
         private Vector2 _lookInput;
+        private bool _jumpInput;
 
         // Movement related
         private Vector3 _playerVelocity = Vector3.zero;
@@ -98,7 +99,6 @@ namespace AMPR.Controls
         private Vector2 _rotationVector;
 
         // Jump related
-        private bool _jumpInput;
         private bool _isJumping;
         private bool _playerGrounded;
         private double _jumpCooldownTimer;
@@ -235,6 +235,7 @@ namespace AMPR.Controls
             _playerVelocity += _gravity * deltaTime;
 
             _collisionFlags = _controller.Move((forwardMovement * _MovementSpeed + _playerVelocity) * deltaTime);
+            _jumpInput = false;
         }
 
         private bool CheckForGround()
