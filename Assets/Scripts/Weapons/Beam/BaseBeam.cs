@@ -12,7 +12,6 @@ namespace AMPR.Weapon
         public int ChargeDamage { get => _chargeDamage; }
         public float ChargeBulletSpeed { get => _chargeBulletSpeed; }
 
-        internal BaseBullet BulletPrefab;
         internal BaseChargeBullet ChargeBulletPrefab;
 
         [SerializeField]
@@ -33,6 +32,9 @@ namespace AMPR.Weapon
         protected float _chargeBulletSpeed;
         [SerializeField, Min(0)]
         protected float _chargeDespawnTime;
+
+        [SerializeField]
+        private BaseBullet BulletPrefab;
 
         protected ArmCannon _armCannon;
 

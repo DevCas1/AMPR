@@ -5,7 +5,8 @@ namespace AMPR.Weapon
     [CreateAssetMenu(menuName = "AMPR/PowerBeam", fileName = "Power Beam")]
     internal class PowerBeam : BaseBeam
     {
-        public new PowerBullet BulletPrefab;
+        [SerializeField]
+        private PowerBullet BulletPrefab;
 
         [SerializeField]
         private float _fadeDuration;
