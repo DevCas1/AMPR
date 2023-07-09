@@ -4,34 +4,29 @@ namespace AMPR.Weapon
 {
     public abstract class BaseBeam : ScriptableObject
     {
-        public string Name { get => _name; }
+        public string Name { get => name; }
 
-        public float FireRate { get => _fireRate; }
-        public int Damage { get => _damage; }
-        public float BulletSpeed { get => _bulletSpeed; }
-        public int ChargeDamage { get => _chargeDamage; }
-        public float ChargeBulletSpeed { get => _chargeBulletSpeed; }
+        public float FireRate { get => fireRate; }
+        public int Damage { get => damage; }
+        public float BulletSpeed { get => bulletSpeed; }
+        public int ChargeDamage { get => chargeDamage; }
+        public float ChargeBulletSpeed { get => chargeBulletSpeed; }
 
         internal BaseChargeBullet ChargeBulletPrefab;
 
-        [SerializeField]
-        protected string _name;
-        [SerializeField, Min(.01f), Header("Normal shot settings")]
-        protected float _fireRate;
-        [SerializeField, Min(0)]
-        protected int _damage;
-        [SerializeField, Min(1)]
-        protected float _bulletSpeed;
-        [SerializeField, Min(0)]
-        protected float _despawnTime;
-        [SerializeField, Min(1), Header("Charge shot settings")]
-        protected int _chargeTime;
-        [SerializeField, Min(0)]
-        protected int _chargeDamage;
-        [SerializeField, Min(1)]
-        protected float _chargeBulletSpeed;
-        [SerializeField, Min(0)]
-        protected float _chargeDespawnTime;
+        [SerializeField]            protected new string name; 
+        
+        [Header("Normal shot settings")]
+        [SerializeField, Min(.01f)] protected     float  fireRate;
+        [SerializeField, Min(0)]    protected     int    damage;
+        [SerializeField, Min(1)]    protected     float  bulletSpeed;
+        [SerializeField, Min(0)]    protected     float  despawnTime;
+        
+        [Header("Charge shot settings")]
+        [SerializeField, Min(1)]    protected     int    chargeTime;
+        [SerializeField, Min(0)]    protected     int    chargeDamage;
+        [SerializeField, Min(1)]    protected     float  chargeBulletSpeed;
+        [SerializeField, Min(0)]    protected     float  chargeDespawnTime;
 
         [SerializeField]
         private BaseBullet BulletPrefab;
@@ -43,7 +38,8 @@ namespace AMPR.Weapon
         internal virtual void ShootBeam()
         {
             var bullet = Instantiate(BulletPrefab, _armCannon.BulletOrigin.position, _armCannon.transform.rotation);
-            bullet.Shoot(_damage, _bulletSpeed, _despawnTime);
+            bullet.Initialize(damage, bulletSpeed, despawnTime);
+            bullet.Shoot();
         }
 
         internal virtual void ChargeBeam()

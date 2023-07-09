@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12ebacbcb716895409e7cf330a50047f, type: 3}
   m_Name: Power Beam
   m_EditorClassIdentifier: 
-  BulletPrefab: {fileID: 3546786908810105866, guid: 9fadc2a4665f7c04781d6644e60783a6, type: 3}
   _name: Power Beam Bullet
   _fireRate: 20
   _damage: 1
-  _bulletSpeed: 35
+  _bulletSpeed: 75
   _despawnTime: 6
+  _chargeTime: 0
+  _chargeDamage: 0
+  _chargeBulletSpeed: 0
+  _chargeDespawnTime: 0
+  BulletPrefab: {fileID: 3546786908810105866, guid: 9fadc2a4665f7c04781d6644e60783a6, type: 3}
   BulletPrefab: {fileID: 3546786908810105866, guid: 9fadc2a4665f7c04781d6644e60783a6, type: 3}
   _fadeDuration: 1

@@ -5,30 +5,44 @@ namespace AMPR.Weapon
 {
     internal class PowerBullet : BaseBullet
     {
-        private Light _light;
-        private float _fadeDuration;
+
+        [SerializeField] private     float bulletRadius;
+
+                         private new Light light;
+                         private     float fadeDuration;
 
         internal void Initialize(int damage, float speed, float despawnTime, float fadeDuration)
         {
-            _light = GetComponent<Light>();
-            _fadeDuration = fadeDuration;
+            light = GetComponent<Light>();
+            this.fadeDuration = fadeDuration;
 
             base.Initialize(damage, speed, despawnTime);
         }
 
-        internal void Shoot(int damage, float speed, float despawnTime, float fadeDuration)
+        protected override void Update()
         {
-            _light = GetComponent<Light>();
-            _fadeDuration = fadeDuration;
+            base.Update();
 
-            base.Shoot(damage, speed, despawnTime);
+            transform.Translate(speed * Time.deltaTime * transform.forward);
         }
 
-        protected override void End()
+        protected void FixedUpdate()
         {
-            _rb.velocity = Vector3.zero;
-            _col.enabled = false;
-            DOTween.To(() => _light.intensity, x => _light.intensity = x, 0, _fadeDuration).OnComplete(() => base.End());
+            if (Physics.SphereCast(transform.position, bulletRadius, transform.forward, out RaycastHit hit, hittableLayers))
+            {
+                OnHit(hit.transform);
+            }
+        }
+
+        internal override void Shoot()
+        {
+            light = GetComponent<Light>();
+            base.Shoot();
+        }
+
+        protected override void DestroyBullet()
+        {
+            DOTween.To(() => light.intensity, x => light.intensity = x, 0, fadeDuration).OnComplete(() => base.DestroyBullet());
         }
     }
 }

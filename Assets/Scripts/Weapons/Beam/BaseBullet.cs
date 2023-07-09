@@ -3,74 +3,65 @@ using UnityEngine;
 
 namespace AMPR.Weapon
 {
-    [RequireComponent(typeof(Rigidbody), typeof(SphereCollider))]
     internal abstract class BaseBullet : MonoBehaviour
     {
-        public float Damage { get => _damage; }
+        public    float     Damage { get => damage; }
 
-        protected bool _initialized = false;
-        protected int _damage;
-        protected float _speed;
-        protected float _despawnTimer;
-        protected Rigidbody _rb;
-        protected Collider _col;
+        protected bool      initialized = false;
+        protected int       damage;
+        protected float     speed;
+        protected float     despawnTimer;
+        protected LayerMask hittableLayers;
 
         internal virtual void Initialize(int damage, float speed, float despawnTime)
         {
-            _damage = damage;
-            _speed = speed;
-            _despawnTimer = despawnTime;
-            _rb = GetComponent<Rigidbody>();
+            this.damage = damage;
+            this.speed = speed;
+            despawnTimer = despawnTime;
 
-            _rb.useGravity = false;
-            _col = GetComponent<SphereCollider>();
-
-            _col.isTrigger = true;
-            _initialized = true;
+            initialized = true;
         }
 
         internal virtual void Shoot()
         {
-            if (!_initialized)
+            if (!initialized)
             {
                 Debug.LogError($"Can't shoot bullet {transform.name} without initializing it!");
                 return;
             }
-            _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
-        }
 
-        internal virtual void Shoot(int damage, float speed, float despawnTime)
-        {
-            Initialize(damage, speed, despawnTime);
-            _rb.AddForce(transform.forward * _speed, ForceMode.VelocityChange);
+            // TODO: Manual projectile translation and collision detection
         }
 
         protected virtual void Update()
         {
-            if (_despawnTimer < 0)
+            if (despawnTimer < 0)
             {
-                End();
+                DestroyBullet();
                 return;
             }
 
-            _despawnTimer -= Time.deltaTime;
+            UpdateBulletTimer();
         }
 
-        protected void OnTriggerEnter(Collider col)
+        protected virtual void UpdateBulletTimer() => despawnTimer -= Time.deltaTime;
+
+        //protected void OnTriggerEnter(Collider col)
+        protected void OnHit(Transform other)
         {
-            Debug.Log($"Bullet {transform.name} collided with {col.transform.name}");
-            var interactable = col.transform.GetComponentInParent<IInteractable>();
+            Debug.Log($"Bullet {transform.name} collided with {other.name}");
+            var interactable = other.GetComponentInParent<IInteractable>();
 
             if (interactable != null)
             {
                 interactable.Interact(this);
-                Debug.Log($"{transform.name} interacts with Interactable {col.transform.name}");
+                Debug.Log($"{transform.name} interacts with Interactable {other.name}");
             }
 
-            End();
+            DestroyBullet();
         }
 
-        protected virtual void End()
+        protected virtual void DestroyBullet()
         {
             Destroy(gameObject);
         }
